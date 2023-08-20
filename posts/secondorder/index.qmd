@@ -1,0 +1,295 @@
+---
+title: "Optimizing bivariate functions"
+authors: "Kishan Ved and Vannsh Jani"
+description: "Understanding optimization of bivariate functions using Newton's method and L-BFGS."
+date: "08/20/2023"
+draft: false
+categories: ['ML','Math','Coding']
+---
+
+# Hessian Matrix
+
+Hessian matrix is a square matrix of second order partial derivatives of a scalar valued function. It can be used to describe the local curvature of the function at a point and it is denoted by **H**.
+
+$$
+H(f) = \begin{bmatrix} \frac{\partial^2 f}{\partial x_1^2} & \frac{\partial^2 f}{\partial x_1 \partial x_2} \cdots& \frac{\partial^2 f}{\partial x_1 \partial x_n} \\ \frac{\partial^2 f}{\partial x_2\partial x_1} & \frac{\partial^2 f}{\partial x_2^2} \cdots& \frac{\partial^2 f}{\partial x_2 \partial x_n} \\ \vdots &\quad \vdots \quad \ddots & \vdots \\ \frac{\partial^2 f}{\partial x_n \partial x_1} & \frac{\partial^2 f}{\partial x_n \partial x_2}  \cdots& \frac{\partial^2 f}{\partial x_n^2} \end{bmatrix}
+$$
+
+For example, let's take a bivariate function(n=2),
+
+$$
+f(x,y) = xy^2
+$$
+
+$$
+H(f)= \begin{bmatrix} \frac{\partial^2 f}{\partial x^2} & \frac{\partial^2 f}{\partial x \partial y} \\ \frac{\partial^2 f}{\partial y \partial x} & \frac{\partial^2 f}{\partial y^2} \end{bmatrix}
+$$
+
+Here, $\frac{\partial f}{\partial x}=y^2$, $\frac{\partial f}{\partial y}=2xy$, $\frac{\partial^2 f}{\partial x^2}=0,\frac{\partial^2 f}{\partial y^2}=2x,\frac{\partial^2 f}{\partial x \partial y}=\frac{\partial^2 f}{\partial y \partial x}=2y$
+
+$$
+H(f)=\begin{bmatrix} 0 & 2y \\ 2y & 2x \end{bmatrix}
+$$
+
+Using this matrix, we can find out the nature of the curvature at any point $(x_1,y_1)$, by substituting this point in the Hessian.
+
+If the Hessian matrix is positive definite(all eigenvalues are positive) at a point, it indicates that the function is locally convex(has a local minimum) around that point. If it is negative definite, the function is locally concave. If the eigenvalues have both positive and negative values, then this point has a mixture of concave and convex behaviour in different directions and such a point is called a saddle point.
+
+```{python}
+import torch
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Define a sample function
+def f(x):
+    return x[0]*x[1]**2 
+
+# point where you want to compute Hessian matrix
+# requires_grad=True tells pytorch to keep track of x0 which form a computation graph to compute gradients easily.
+x0 = torch.tensor([2.0, 1.0], requires_grad=True)
+# create_graph=True is used to compute higher order derivatives in the computation graph
+grads = torch.autograd.grad(f(x0), x0, create_graph=True)[0]
+Hessian = torch.zeros((len(x0), len(x0)))
+for i in range(len(x0)):
+    Hessian[i] = torch.autograd.grad(grads[i], x0, retain_graph=True)[0]
+
+Hessian = Hessian.detach().numpy()
+plt.imshow(Hessian, cmap='coolwarm')
+plt.xticks(np.arange(len(x0)))
+plt.yticks(np.arange(len(x0)))
+plt.xlabel('Hessian Row Index')
+plt.ylabel('Hessian Column Index')
+plt.colorbar()
+plt.title('Visualization of the Hessian Matrix')
+plt.show()
+```
+
+## Newton's method for optimizing bivariate functions using Hessian.
+
+Following are the steps to find minimum or maximum of a function:
+
+1.  Make an intial guess.
+2.  At the initial guess, we find out how steep the slope of the curve is and how quickly the slope is changing. Hence, we calculate the first derivative and the second derivative at this point.
+3.  We can approximate a quadratic function(parabolic bowl) at that point using the taylor series.
+4.  Newton's method then moves to the minimum of the parabolic bowl which is the new guess for the optimal point of the original function.
+5.  This process repeats and with each iteration you edge closer to the optimal value of the original function and finally newton's method converges.
+
+At any iteration, the value of $x$ can be updated as,
+
+$$
+x_{i+1} = x_i-H^{-1}\nabla f(x_i) \quad -(*)
+$$
+
+where $H^{-1}$ is the inverse of the hessian(which is initially assumed to be the identity matrix) and $\nabla f(x_i)$ is an array/vector containing the partial derivatives of $f$ with respect to all the variables.
+
+Following is the code for optimizing $f(x,y)=-sin(x)-cos(y)$.
+
+Let's first plot $f(x,y)$.
+
+```{python}
+import numpy as np
+import matplotlib.pyplot as plt
+
+x = np.linspace(-5, 5, 100)
+y = np.linspace(-5, 5, 100)
+X, Y = np.meshgrid(x, y)
+
+def f(X,Y):
+    return -np.sin(X) - np.cos(Y)
+Z = f(X,Y)
+
+fig = plt.figure(figsize=(8,6))
+ax1= fig.add_subplot(111, projection='3d')
+ax1.plot_surface(X, Y, Z, cmap='viridis')
+ax1.set_xlabel('X')
+ax1.set_ylabel('Y')
+ax1.set_zlabel('Z')
+ax1.set_title('f(x) = -sin(x) - cos(y)')
+plt.show()
+```
+
+```{python}
+import torch
+
+def f(x):
+    return -torch.sin(x[0])-torch.cos(x[1])
+
+iterations = 10
+
+
+def newton(guess,f,iterations):
+  guesses=[]
+  guesses.append(guess)
+  for i in range(iterations):
+      f_value = f(guess)
+      gradient = torch.autograd.grad(f_value, guess, create_graph=True)[0]
+      hessian = torch.zeros((len(guess), len(guess)))
+      for j in range(len(guess)):
+          hessian_row = torch.autograd.grad(gradient[j], guess, retain_graph=True)[0]
+          hessian[j] = hessian_row
+      step = -torch.linalg.solve(hessian, gradient)
+      guess = guess + step
+      guesses.append(guess)
+  return guesses
+      
+
+guess = torch.tensor([2.0, 1.0], requires_grad=True)
+guesses=newton(guess,f,iterations)
+for i in range(len(guesses)):
+  print(f"Iteration {i}: guess = {guesses[i]}")
+```
+
+So after updating our guess using $(*)$ for a sufficient number of iterations, we get our final guess as $x=1.5708 \quad and \quad y=0.0$.
+
+Let's plot the contour plot of the above function to verify our results.
+
+```{python}
+import time 
+
+x = np.linspace(-6, 6, 100)
+y = np.linspace(-6, 6, 100)
+X, Y = np.meshgrid(x, y)
+
+def f1(X,Y):
+    return -np.sin(X) - np.cos(Y)
+Z = f1(X,Y)
+
+def plot_contour(guesses):
+  fig=plt.figure(figsize=(10,6))
+  ax = fig.add_subplot(111)
+  contour = ax.contourf(X,Y,Z)
+  plt.colorbar(contour)
+  ax.set_xlabel("X")
+  ax.set_ylabel("Y")
+  ax.set_title("Contour plot of f(x,y)")
+  marker=""
+  for i in range(2):
+    if i==0:
+      marker="o"
+      color="cyan"
+      ax.scatter(guesses[0][0].detach().numpy(), guesses[0][1].detach().numpy(), color=color, alpha=1,marker=marker)
+    else:
+      marker="x"
+      color="red"
+      ax.scatter(guesses[-1][0].detach().numpy(), guesses[-1][1].detach().numpy(), color=color, alpha=1,marker=marker)
+  plt.show()
+  
+plot_contour(guesses)
+```
+
+<https://www.flexclip.com/share/367853402cf50de52d9ad00687ce49806e7a8e5.html>
+
+Through the contour plot we can understand that even though our initial guess was the point $(2,1)$ we finally reached the minima of the function. In the above contour plot, the bluish circle is the initial guess and the red cross is the final guess.
+
+Depending upon different initial guesses, the final guess could land onto different minimas or possibly even a saddle point.
+
+Let's say we take another point $(1,-2)$.
+
+```{python}
+guess = torch.tensor([1.0, -2.0], requires_grad=True)
+iterations=10
+guesses = newton(guess,f,iterations)
+plot_contour(guesses)
+```
+
+In the case above we got a saddle point, this is one of the drawbacks of the newton method.
+
+Although the newton's method for optimization converges faster than the gradient descent algorithm and one doesn't have to also face the difficulty in deciding the learning rate as is faced in gradient descent, the computation of the Hessian and it's inverse is computationally very expensive(having computational complexity of $O(n^3)$ for functions with n variables.
+
+In order to use this method for optimization, the hessian needs to be positive definite which may not always be possible.
+
+Hence to overcome these scenarios, Quasi-newton optimization algorithms can be used like the BFGS, and the LBFGS, where we try to approximate the hessian instead of calculating it.
+
+## L-BFGS for optimizing functions:
+
+The BFGS algorithm constructs an approximation of the inverse Hessian matrix using a sequence of rank-two updates. This approximation captures information about the curvature of the objective function's landscape and guides the optimization process. BFGS has good convergence properties and doesn't require the explicit computation of the Hessian matrix, making it suitable for problems with a large number of variables.
+
+L-BFGS is a variant of the BFGS algorithm that addresses the memory and computational requirements associated with the Hessian matrix. In high-dimensional optimization problems, storing and manipulating the full Hessian matrix can be expensive. L-BFGS overcomes this limitation by maintaining a limited-memory approximation of the Hessian, using only a small number of vectors.
+
+L-BFGS uses a recursive formula to update and approximate the inverse Hessian matrix. Instead of storing the full Hessian matrix explicitly, L-BFGS maintains a limited number of vector pairs to approximate the Hessian. This makes L-BFGS well-suited for large-scale optimization problems and enables it to operate efficiently in high-dimensional spaces.
+
+The following code implements LBFGS of the function -sin(x)-cos(y)
+
+```{python}
+import torch
+import torch.optim as optim
+import matplotlib.pyplot as plt
+
+def f(x):
+    return -torch.sin(x[0])-torch.cos(x[1])
+
+# L-BFGS
+def closure():
+    lbfgs.zero_grad()
+    objective = f(x_lbfgs)
+    objective.backward()
+    return objective
+
+x_lbfgs = torch.ones(2, 1)
+x_lbfgs.requires_grad = True
+
+lbfgs = optim.LBFGS([x_lbfgs],
+                    history_size=10, 
+                    max_iter=4, 
+                    line_search_fn="strong_wolfe")
+                    
+history_lbfgs = []
+for i in range(100):
+    history_lbfgs.append(f(x_lbfgs).item())
+    lbfgs.step(closure)
+```
+
+Let us also perform gradient descent on this, with learning rate of 10^-5.
+
+```{python}
+x_gd = torch.ones(2, 1)
+x_gd.requires_grad = True
+gd = optim.SGD([x_gd], lr=1e-5)
+
+history_gd = []
+for i in range(100):
+    gd.zero_grad()
+    objective = f(x_gd)
+    objective.backward()
+    gd.step()
+    history_gd.append(objective.item())
+```
+
+Now, to visualize the results, we use a contour plot:
+
+```{python}
+x_range = np.linspace(-5, 5, 400)
+y_range = np.linspace(-5, 5, 400)
+X, Y = np.meshgrid(x_range, y_range)
+
+Z = f(torch.tensor([X, Y])).detach().numpy()
+
+fig=plt.figure(figsize=(10,6))
+plt.contourf(X, Y, Z, levels=20, cmap="viridis")
+
+coordinates = np.array([2.0, 1.0])
+plt.plot(coordinates[0], coordinates[1], marker="o", color="cyan", label="Initial Coordinates")
+
+coordinates = x_lbfgs.detach().numpy()
+plt.plot(coordinates[0], coordinates[1], marker="o", color="red", label="LBFGS")
+
+coordinates = x_gd.detach().numpy()
+plt.plot(coordinates[0], coordinates[1], marker="o", color="orange", label="Grad Desc (lr=1e-5)")
+
+plt.colorbar(label="Objective Value")
+plt.xlabel("X")
+plt.ylabel("Y")
+plt.title("Contour Plot of -sin(X)-cos(Y)")
+plt.legend()
+plt.show()
+```
+
+We observe that in a 100 iterations, the gradient descent algorithm does not converge to the minima, but remains somewhere in between. Changing the learning rate might lead to the optimal value. For L-BFGS, the convergence is at the minima. 
+
+## Remarks[^1]
+
+[^1]: Liu, D.C. and Nocedal, J. (no date) On the limited memory BFGS method for large scale optimization - mathematical programming, SpringerLink. Available at: https://link.springer.com/article/10.1007/BF01589116 (Accessed: 20 August 2023). 
+
+The LBFGS method is appealing for several reasons it is very simple to implement it requires only function and gradient values and no other information on the problem # and it can be faster than the partitioned quasi Newton method on problems where the element functions depend on more than or variables	 
+In addition the LBFGS method appears to be preferable to PQN for large problems in which the Hessian matrix is not very sparse or for problems in which
+the information on the separablity of the ob jective function is difficult to obtain.

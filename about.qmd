@@ -1,0 +1,21 @@
+---
+title: "About"
+about:
+  template: jolla
+  image: Kishan.png
+  links:
+    - icon: linkedin
+      text: linkedin
+      href: www.linkedin.com/in/kishan-ved-506140259
+    - icon: github
+      text: Github
+      href: https://github.com/Kishan-Ved
+---
+
+Hi, I'm Kishan Ved, a second year undergraduate at IIT Gandhinagar.
+
+## Education
+
+IIT Gandhinagar | B.Tech | Computer Science Engineering
+
+
