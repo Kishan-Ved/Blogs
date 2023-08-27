@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/huffmancoding/index.html",
       "/posts/secondorder/index.html",
       "/posts/linalg/index.html"
     ]
