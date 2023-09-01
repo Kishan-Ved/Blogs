@@ -280,7 +280,19 @@ z 0</code></pre>
 </section>
 <section id="building-the-huffman-tree" class="level3">
 <h3 class="anchored" data-anchor-id="building-the-huffman-tree">Building the Huffman Tree:</h3>
-<p>The root node contains all letters and the frequency is equal to the total number of letters, as we go down the tree, we assign a 0 to the left nodes, and 1 to the right nodes. As this is a min heap, frequency values increase from left to right. The process of building the Huffman tree involves merging nodes with the lowest frequencies into a single parent node. This step creates a binary tree structure where the path to a specific symbol’s leaf node represents its Huffman code.</p>
+<!---
+ The root node contains all letters and the frequency is equal to the total number of letters, as we go down the tree, we assign a 0 to the left nodes, and 1 to the right nodes. As this is a min heap, frequency values increase from left to right.
+The process of building the Huffman tree involves merging nodes with the lowest frequencies into a single parent node. This step creates a binary tree structure where the path to a specific symbol's leaf node represents its Huffman code.
+
+The steps are- 
+--->
+<section id="merge-nodes" class="level4">
+<h4 class="anchored" data-anchor-id="merge-nodes">Merge nodes:</h4>
+<p>Repeatedly remove the two nodes with the lowest frequencies from the priority queue and create a new node whose frequency is the sum of the frequencies of the two nodes. Insert this new node back into the priority queue. Continue this process until there is only one node left in the priority queue. This final node represents the root of the Huffman tree.</p>
+</section>
+<section id="construct-the-huffman-tree" class="level4">
+<h4 class="anchored" data-anchor-id="construct-the-huffman-tree">Construct the Huffman tree:</h4>
+<p>The last node remaining in the priority queue is the root of the Huffman tree. Trace back from this root node to the leaf nodes, creating the binary code for each character as you go. Assign ‘0’ for left branches and ‘1’ for right branches. When you reach a leaf node, you have the Huffman code for that character.</p>
 <div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="bu">len</span>(nodes) <span class="op">&gt;</span> <span class="dv">1</span>:</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    left <span class="op">=</span> heapq.heappop(nodes)</span>
@@ -292,6 +304,7 @@ z 0</code></pre>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    new_node <span class="op">=</span> Node(new_freq, new_symbol, left, right)</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    heapq.heappush(nodes, new_node)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
 </section>
 <section id="generating-codes" class="level3">
 <h3 class="anchored" data-anchor-id="generating-codes">Generating Codes:</h3>
