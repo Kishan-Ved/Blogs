@@ -149,7 +149,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         </div>
       </div>
                           <div class="quarto-categories">
-                <div class="quarto-category">Information Theoey</div>
+                <div class="quarto-category">Information Theory</div>
                 <div class="quarto-category">Coding</div>
               </div>
                   </div>
@@ -342,22 +342,48 @@ p 111111</code></pre>
 </section>
 <section id="visualizing-the-huffman-tree" class="level3">
 <h3 class="anchored" data-anchor-id="visualizing-the-huffman-tree">Visualizing the Huffman tree</h3>
+<p>The huffman tree can be visualized using the graphviz python library, the following code saves an image huffman_tree.png which contains the Huffman Tree.</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> graphviz</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> generate_graph(node, dot<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> dot <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        dot <span class="op">=</span> graphviz.Digraph(<span class="bu">format</span><span class="op">=</span><span class="st">'png'</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        dot.attr(dpi<span class="op">=</span><span class="st">'300'</span>, bgcolor<span class="op">=</span><span class="st">'white'</span>)  <span class="co"># Set background color</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    dot.node(<span class="bu">str</span>(<span class="bu">id</span>(node)), <span class="ss">f"</span><span class="sc">{</span>node<span class="sc">.</span>symbol<span class="sc">}</span><span class="ss">:</span><span class="sc">{</span>node<span class="sc">.</span>freq<span class="sc">}</span><span class="ss">"</span>, style<span class="op">=</span><span class="st">"filled"</span>, fillcolor<span class="op">=</span><span class="st">"lightblue"</span>)  <span class="co"># Node color</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> node.left:</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        dot.node(<span class="bu">str</span>(<span class="bu">id</span>(node.left)), <span class="ss">f"</span><span class="sc">{</span>node<span class="sc">.</span>left<span class="sc">.</span>symbol<span class="sc">}</span><span class="ss">:</span><span class="sc">{</span>node<span class="sc">.</span>left<span class="sc">.</span>freq<span class="sc">}</span><span class="ss">"</span>, style<span class="op">=</span><span class="st">"filled"</span>, fillcolor<span class="op">=</span><span class="st">"lightgreen"</span>)  <span class="co"># Node color</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        dot.edge(<span class="bu">str</span>(<span class="bu">id</span>(node)), <span class="bu">str</span>(<span class="bu">id</span>(node.left)), label<span class="op">=</span><span class="st">"0"</span>, color<span class="op">=</span><span class="st">"blue"</span>)  <span class="co"># Edge color</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        generate_graph(node.left, dot)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> node.right:</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        dot.node(<span class="bu">str</span>(<span class="bu">id</span>(node.right)), <span class="ss">f"</span><span class="sc">{</span>node<span class="sc">.</span>right<span class="sc">.</span>symbol<span class="sc">}</span><span class="ss">:</span><span class="sc">{</span>node<span class="sc">.</span>right<span class="sc">.</span>freq<span class="sc">}</span><span class="ss">"</span>, style<span class="op">=</span><span class="st">"filled"</span>, fillcolor<span class="op">=</span><span class="st">"lightgreen"</span>)  <span class="co"># Node color</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        dot.edge(<span class="bu">str</span>(<span class="bu">id</span>(node)), <span class="bu">str</span>(<span class="bu">id</span>(node.right)), label<span class="op">=</span><span class="st">"1"</span>, color<span class="op">=</span><span class="st">"red"</span>)  <span class="co"># Edge color</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        generate_graph(node.right, dot)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> dot</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Uncomment the following 2 lines before running this cell</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="co"># graph = generate_graph(huffman_tree_root)</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co"># graph.render("huffman_tree", cleanup=True)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The Huffman Tree obtained in our case is:</p>
 <p><img src="img1.png" class="img-fluid"></p>
 </section>
 </section>
 <section id="why-is-huffman-coding-better" class="level2">
 <h2 class="anchored" data-anchor-id="why-is-huffman-coding-better">Why is Huffman coding better?</h2>
 <p>Let’s analyze the total number of bits that we need to transmit codes. Total number of bits = Letter frequency * Number of bits used for to represent that letter</p>
-<div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Without Huffman coding, we need 5 bits to represent every letter.</span><span class="ch">\n</span><span class="st">This means, to transmit all data, we need to transmit a total of: "</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>l1 <span class="op">=</span> <span class="bu">len</span>(s)<span class="op">*</span><span class="dv">5</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(l1,<span class="st">"bits"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>l2 <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(codes)):</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  l2 <span class="op">+=</span> <span class="bu">len</span>(codes[<span class="bu">list</span>(codes.keys())[i]]) <span class="op">*</span> d[<span class="bu">list</span>(codes.keys())[i]]</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"However, using Huffman coding, we need only:"</span>)</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(l2,<span class="st">"bits"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Without Huffman coding, we need 5 bits to represent every letter.</span><span class="ch">\n</span><span class="st">This means, to transmit all data, we need to transmit a total of: "</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>l1 <span class="op">=</span> <span class="bu">len</span>(s)<span class="op">*</span><span class="dv">5</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(l1,<span class="st">"bits"</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>l2 <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(codes)):</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  l2 <span class="op">+=</span> <span class="bu">len</span>(codes[<span class="bu">list</span>(codes.keys())[i]]) <span class="op">*</span> d[<span class="bu">list</span>(codes.keys())[i]]</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"However, using Huffman coding, we need only:"</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(l2,<span class="st">"bits"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Without Huffman coding, we need 5 bits to represent every letter.
 This means, to transmit all data, we need to transmit a total of: 
@@ -370,8 +396,8 @@ However, using Huffman coding, we need only:
 <section id="compression-ratio" class="level2">
 <h2 class="anchored" data-anchor-id="compression-ratio">Compression ratio:</h2>
 <p>Compression ratio stands for the number of bits needed before compression to that after compression. The higher the compression ratio, the better. The compression ratio for the above quote after Huffman coding is:</p>
-<div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Compression ratio: "</span>,l1,<span class="st">" : "</span>,l2,<span class="st">" = "</span>,(l1<span class="op">/</span>l2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Compression ratio: "</span>,l1,<span class="st">" : "</span>,l2,<span class="st">" = "</span>,(l1<span class="op">/</span>l2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Compression ratio:  2240  :  1485  =  1.5084175084175084</code></pre>
 </div>
