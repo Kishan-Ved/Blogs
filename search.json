@@ -35,6 +35,34 @@
     "text": "Footnotes\n\n\nLiu, D.C. and Nocedal, J. (no date) On the limited memory BFGS method for large scale optimization - mathematical programming, SpringerLink. Available at: https://link.springer.com/article/10.1007/BF01589116 (Accessed: 20 August 2023).↩︎"
   },
   {
+    "objectID": "posts/jpeghuffman/jpeghuffman.html",
+    "href": "posts/jpeghuffman/jpeghuffman.html",
+    "title": "Huffman Coding in JPEG",
+    "section": "",
+    "text": "import huffman\nimport numpy as np\n\n# Create a 2D array (8x8) with DCT coefficients (replace with your actual coefficients)\ndct_coefficients = np.array([\n    [20, 30, 10, 25, 30, 0, 0, 0],\n    [0, 5, 0, 0, 0, 0, 5, 0],\n    [0, 0, 15, 0, 0, 0, 20, 0],\n    [0, 0, 0, 0, 1, 0, 0, 0],\n    [0, 0, 0, 0, 0, 0, 0, 0],\n    [0, 0, 0, 0, 0, 0, 0, 0],\n    [0, 0, 0, 0, 0, 0, 0, 0],\n    [0, 0, 0, 0, 0, 0, 0, 0]\n], dtype=np.int32)\nprint(\"Initial matrix\")\nprint(dct_coefficients)\nprint()\n# Function to calculate (r, s) pairs for DCT coefficients\ndef calculate_rs_pairs(dct_coefficients):\n    rs_pairs = []\n    run_length = 0\n\n    for row in dct_coefficients:\n        for element in row:\n            if element == 0:\n                run_length += 1\n            else:\n                bits_needed = len(bin(abs(element))) - 2  # Calculate the number of bits needed to represent c\n                rs_pairs.append(((run_length, bits_needed), element))\n                run_length = 0\n\n    return rs_pairs\n\n# Calculate (r, s) pairs\nrs_pairs = calculate_rs_pairs(dct_coefficients)\n\nprint(\"(r,s) pairs and c values:\")\nfor i in range(len(rs_pairs)):\n  print(rs_pairs[i])\nprint()\n\n# Calculate the frequency of (r, s) pairs\nfrequency_rs = {}\n\nd = {} # maps (r,s) pair to a unique symbol (for passing in huffman library)\nd2 = {} # Inverse of d\nalph = \"abcdefghijklmnopqrstuvwxyz\"\npos=0\n\nfor (r, s), _ in rs_pairs:\n  if (r,s) in list(d.keys()):\n    continue\n  else:\n    d[(r,s)] = alph[pos]\n    d2[alph[pos]] = (r,s)\n    pos+=1\n\nfor (r,s),_ in rs_pairs:\n    if d[(r, s)] in frequency_rs:\n        frequency_rs[d[(r, s)]] += 1\n    else:\n        frequency_rs[d[(r, s)]] = 1\n\n# Build Huffman codes for (r, s) pairs\nhuffman_rs = huffman.codebook([(x,frequency_rs[x]) for x in list(frequency_rs.keys())])\n\n# Create a dictionary to map (r, s) pairs to their Huffman codes\nrs_to_huffman = {pair: huffman_rs[pair] for pair in frequency_rs.keys()}\n\n# Encode ((r, s), c) triples\nencoded_data = \"\"\nfor (r, s), c in rs_pairs:\n    # encoded_data += rs_to_huffman[d[(r, s)]]   # Encode (r, s)\n    encoded_data += rs_to_huffman[d[(r, s)]] + format(c, f'0{s}b')  # Encode (r, s) and c\n\n# Decode the encoded data to recover the ((r, s), c) triples\ndecoded_data = []\ncurrent_bits = \"\"\ni=0\nwhile i&lt;len(encoded_data):\n    # print(i)\n    current_bits += encoded_data[i]\n    i+=1\n    for ch, huffman_code in rs_to_huffman.items():\n        if current_bits == huffman_code:\n            current_bits = \"\"\n            c_bits = \"\"\n            r,s = d2[ch]\n            # print(s)\n            for j in range(s):\n                c_bits += encoded_data[i+j]\n            decoded_data.append((ch,int(c_bits, 2)))\n            # print(ch,int(c_bits,2))\n            i+=s\n            # print(i)\n            c_bits = \"\"\n        # i+=1\n\n# Print the encoded and decoded data\nprint(\"Encoded Data:\")\nprint(encoded_data)\n\nprint(\"\\nDecoded Data:\")\ndl = []\nfor ch,c in decoded_data:\n  print(d2[ch],c)\n  dl.append((d2[ch],c))\n\nnewl = []\nfor ele in dl:\n  r,s = ele[0]\n  c = ele[1]\n  for i in range(r):\n    newl.append(0)\n  newl.append(c)\n\nll = len(newl)\nfor i in range(ll+1,64+1):\n  newl.append(0)\n\nimport numpy as np\nnewl = np.array(newl)\nnewl = np.reshape(newl,(8,8))\nprint()\nprint(\"The decoded matrix is:\")\nprint(newl)\n\nInitial matrix\n[[20 30 10 25 30  0  0  0]\n [ 0  5  0  0  0  0  5  0]\n [ 0  0 15  0  0  0 20  0]\n [ 0  0  0  0  1  0  0  0]\n [ 0  0  0  0  0  0  0  0]\n [ 0  0  0  0  0  0  0  0]\n [ 0  0  0  0  0  0  0  0]\n [ 0  0  0  0  0  0  0  0]]\n\n(r,s) pairs and c values:\n((0, 5), 20)\n((0, 5), 30)\n((0, 4), 10)\n((0, 5), 25)\n((0, 5), 30)\n((4, 3), 5)\n((4, 3), 5)\n((3, 4), 15)\n((3, 5), 20)\n((5, 1), 1)\n\nEncoded Data:\n1110100111111010010101111001111111000101001011011111011101000101\n\nDecoded Data:\n(0, 5) 20\n(0, 5) 30\n(0, 4) 10\n(0, 5) 25\n(0, 5) 30\n(4, 3) 5\n(4, 3) 5\n(3, 4) 15\n(3, 5) 20\n(5, 1) 1\n\nThe decoded matrix is:\n[[20 30 10 25 30  0  0  0]\n [ 0  5  0  0  0  0  5  0]\n [ 0  0 15  0  0  0 20  0]\n [ 0  0  0  0  1  0  0  0]\n [ 0  0  0  0  0  0  0  0]\n [ 0  0  0  0  0  0  0  0]\n [ 0  0  0  0  0  0  0  0]\n [ 0  0  0  0  0  0  0  0]]"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Kishan’s Blog Page",
+    "section": "",
+    "text": "Welcome to my Blog page! Here I’ll explain some exciting topics, based on Machine Learning, Mathematics, Coding etc., with visualisations to make it easier to grasp concepts. Every blog also contains code snippets, so you can run them locally too!\n\n\n\n\n\n\n\n\n\n  \n\n\n\n\nHuffman Coding in JPEG\n\n\n\n\n\n\n\nInformation Theory\n\n\nCoding\n\n\nData Compression\n\n\n\n\nHuffman coding for data compression to optimize memory and transmittion time.\n\n\n\n\n\n\nSep 11, 2023\n\n\n\n\n\n\n  \n\n\n\n\nHuffman Coding\n\n\n\n\n\n\n\nInformation Theory\n\n\nCoding\n\n\n\n\nHuffman coding for data compression to optimize memory and transmittion time.\n\n\n\n\n\n\nAug 27, 2023\n\n\n\n\n\n\n  \n\n\n\n\nOptimizing bivariate functions\n\n\n\n\n\n\n\nML\n\n\nMath\n\n\nCoding\n\n\n\n\nUnderstanding optimization of bivariate functions using Newton’s method and L-BFGS.\n\n\n\n\n\n\nAug 20, 2023\n\n\n\n\n\n\n  \n\n\n\n\nMatrix Transformations\n\n\n\n\n\n\n\nML\n\n\nMath\n\n\nCoding\n\n\n\n\nUnderstanding matrix multiplication as transformation and interpretation of low rank matrices\n\n\n\n\n\n\nJul 20, 2023\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Hi, I’m Kishan Ved, a second year undergraduate at IIT Gandhinagar."
+  },
+  {
+    "objectID": "about.html#education",
+    "href": "about.html#education",
+    "title": "About",
+    "section": "Education",
+    "text": "Education\nIIT Gandhinagar | B.Tech | Computer Science Engineering"
+  },
+  {
     "objectID": "posts/huffmancoding/index.html",
     "href": "posts/huffmancoding/index.html",
     "title": "Huffman Coding",
@@ -68,27 +96,6 @@
     "title": "Huffman Coding",
     "section": "Compression ratio:",
     "text": "Compression ratio:\nCompression ratio stands for the number of bits needed before compression to that after compression. The higher the compression ratio, the better. The compression ratio for the above quote after Huffman coding is:\n\nprint(\"Compression ratio: \",l1,\" : \",l2,\" = \",(l1/l2))\n\nCompression ratio:  2240  :  1485  =  1.5084175084175084"
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "Hi, I’m Kishan Ved, a second year undergraduate at IIT Gandhinagar."
-  },
-  {
-    "objectID": "about.html#education",
-    "href": "about.html#education",
-    "title": "About",
-    "section": "Education",
-    "text": "Education\nIIT Gandhinagar | B.Tech | Computer Science Engineering"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Kishan’s Blog Page",
-    "section": "",
-    "text": "Welcome to my Blog page! Here I’ll explain some exciting topics, based on Machine Learning, Mathematics, Coding etc., with visualisations to make it easier to grasp concepts. Every blog also contains code snippets, so you can run them locally too!\n\n\n\n\n\n\n\n\n\n  \n\n\n\n\nHuffman Coding\n\n\n\n\n\n\n\nInformation Theory\n\n\nCoding\n\n\n\n\nHuffman coding for data compression to optimize memory and transmittion time.\n\n\n\n\n\n\nAug 27, 2023\n\n\n\n\n\n\n  \n\n\n\n\nOptimizing bivariate functions\n\n\n\n\n\n\n\nML\n\n\nMath\n\n\nCoding\n\n\n\n\nUnderstanding optimization of bivariate functions using Newton’s method and L-BFGS.\n\n\n\n\n\n\nAug 20, 2023\n\n\n\n\n\n\n  \n\n\n\n\nMatrix Transformations\n\n\n\n\n\n\n\nML\n\n\nMath\n\n\nCoding\n\n\n\n\nUnderstanding matrix multiplication as transformation and interpretation of low rank matrices\n\n\n\n\n\n\nJul 20, 2023\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "posts/linalg/index.html",
