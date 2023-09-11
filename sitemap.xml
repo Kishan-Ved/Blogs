@@ -2,34 +2,50 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://Kishan-Ved.github.io/Blogs/posts/secondorder/index.html</loc>
-    <lastmod>2023-09-11T19:33:43.646Z</lastmod>
+    <lastmod>2023-09-11T19:50:19.583Z</lastmod>
   </url>
   <url>
-    <loc>https://Kishan-Ved.github.io/Blogs/posts/mlalgos/gradient_descent_from_scratch.html</loc>
-    <lastmod>2023-09-11T19:33:40.846Z</lastmod>
-  </url>
-  <url>
-    <loc>https://Kishan-Ved.github.io/Blogs/posts/jpeghuffman/jpeghuffman.html</loc>
-    <lastmod>2023-09-11T19:33:38.557Z</lastmod>
-  </url>
-  <url>
-    <loc>https://Kishan-Ved.github.io/Blogs/index.html</loc>
-    <lastmod>2023-09-11T19:33:24.954Z</lastmod>
-  </url>
-  <url>
-    <loc>https://Kishan-Ved.github.io/Blogs/about.html</loc>
-    <lastmod>2023-09-11T19:33:22.911Z</lastmod>
-  </url>
-  <url>
-    <loc>https://Kishan-Ved.github.io/Blogs/posts/huffmancoding/index.html</loc>
-    <lastmod>2023-09-11T19:33:37.893Z</lastmod>
-  </url>
-  <url>
-    <loc>https://Kishan-Ved.github.io/Blogs/posts/linalg/index.html</loc>
-    <lastmod>2023-09-11T19:33:40.086Z</lastmod>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/mlalgos/logistic_regression_from_scratch.html</loc>
+    <lastmod>2023-09-11T19:50:17.280Z</lastmod>
   </url>
   <url>
     <loc>https://Kishan-Ved.github.io/Blogs/posts/mlalgos/gradient_descent_multivariable_vectorized_from_scratch.html</loc>
-    <lastmod>2023-09-11T19:33:41.590Z</lastmod>
+    <lastmod>2023-09-11T19:50:16.215Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/mlalgos/forward_propogation_neural_networks_from_scratch.html</loc>
+    <lastmod>2023-09-11T19:50:15.093Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/jpeghuffman/jpeghuffman.html</loc>
+    <lastmod>2023-09-11T19:50:13.285Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/index.html</loc>
+    <lastmod>2023-09-11T19:50:10.417Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/about.html</loc>
+    <lastmod>2023-09-11T19:50:09.165Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/huffmancoding/index.html</loc>
+    <lastmod>2023-09-11T19:50:12.712Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/linalg/index.html</loc>
+    <lastmod>2023-09-11T19:50:14.550Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/mlalgos/gradient_descent_from_scratch.html</loc>
+    <lastmod>2023-09-11T19:50:15.650Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/mlalgos/Handwritten_digit_prediction_Neural_Network.html</loc>
+    <lastmod>2023-09-11T19:50:16.674Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/mlalgos/multi_class_neural_network.html</loc>
+    <lastmod>2023-09-11T19:50:17.916Z</lastmod>
   </url>
 </urlset>
