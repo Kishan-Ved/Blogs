@@ -3,6 +3,8 @@
     "listing": "/index.html",
     "items": [
       "/posts/jpeghuffman/jpeghuffman.html",
+      "/posts/mlalgos/gradient_descent_from_scratch.html",
+      "/posts/mlalgos/gradient_descent_multivariable_vectorized_from_scratch.html",
       "/posts/huffmancoding/index.html",
       "/posts/secondorder/index.html",
       "/posts/linalg/index.html"

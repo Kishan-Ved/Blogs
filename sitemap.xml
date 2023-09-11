@@ -2,26 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://Kishan-Ved.github.io/Blogs/posts/secondorder/index.html</loc>
-    <lastmod>2023-09-10T19:50:32.088Z</lastmod>
+    <lastmod>2023-09-11T04:24:46.152Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/mlalgos/gradient_descent_from_scratch.html</loc>
+    <lastmod>2023-09-11T04:24:44.114Z</lastmod>
   </url>
   <url>
     <loc>https://Kishan-Ved.github.io/Blogs/posts/jpeghuffman/jpeghuffman.html</loc>
-    <lastmod>2023-09-10T19:50:30.099Z</lastmod>
+    <lastmod>2023-09-11T04:24:42.631Z</lastmod>
   </url>
   <url>
     <loc>https://Kishan-Ved.github.io/Blogs/index.html</loc>
-    <lastmod>2023-09-10T19:50:28.014Z</lastmod>
+    <lastmod>2023-09-11T04:24:40.461Z</lastmod>
   </url>
   <url>
     <loc>https://Kishan-Ved.github.io/Blogs/about.html</loc>
-    <lastmod>2023-09-10T19:50:27.229Z</lastmod>
+    <lastmod>2023-09-11T04:24:39.584Z</lastmod>
   </url>
   <url>
     <loc>https://Kishan-Ved.github.io/Blogs/posts/huffmancoding/index.html</loc>
-    <lastmod>2023-09-10T19:50:29.698Z</lastmod>
+    <lastmod>2023-09-11T04:24:42.196Z</lastmod>
   </url>
   <url>
     <loc>https://Kishan-Ved.github.io/Blogs/posts/linalg/index.html</loc>
-    <lastmod>2023-09-10T19:50:30.953Z</lastmod>
+    <lastmod>2023-09-11T04:24:43.629Z</lastmod>
+  </url>
+  <url>
+    <loc>https://Kishan-Ved.github.io/Blogs/posts/mlalgos/gradient_descent_multivariable_vectorized_from_scratch.html</loc>
+    <lastmod>2023-09-11T04:24:44.616Z</lastmod>
   </url>
 </urlset>

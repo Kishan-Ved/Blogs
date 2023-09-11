@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-09-09">
+<meta name="description" content="The mathematics and working of gradient descent algorithhm is shown in this blog.">
+
+<title>Blogs - Gradient Descent from Scratch</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Blogs</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Gradient Descent from Scratch</h1>
+                  <div>
+        <div class="description">
+          The mathematics and working of gradient descent algorithhm is shown in this blog.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">ML</div>
+                <div class="quarto-category">Coding</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Kishan Ved </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">September 9, 2023</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="gradient-descent-for-one-feature" class="level2">
+<h2 class="anchored" data-anchor-id="gradient-descent-for-one-feature"><strong>Gradient Descent for one feature</strong></h2>
+<p>The following describes in detail the algorithm of gradient descent for one single feature x.</p>
+<section id="cost-function" class="level3">
+<h3 class="anchored" data-anchor-id="cost-function"><strong>Cost Function</strong></h3>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cost_func(x,y,w,b):</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  cost <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  n <span class="op">=</span> y.shape[<span class="dv">0</span>]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    f <span class="op">=</span> w<span class="op">*</span>x[i]<span class="op">+</span>b</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    cost <span class="op">+=</span> (f <span class="op">-</span>y[i])<span class="op">**</span><span class="dv">2</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  cost <span class="op">=</span> cost<span class="op">/</span>(<span class="dv">2</span><span class="op">*</span>n)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> cost</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="derivative-function" class="level3">
+<h3 class="anchored" data-anchor-id="derivative-function"><strong>Derivative Function</strong></h3>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> derivative_func(x,y,w,b):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  dw <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  db <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  n <span class="op">=</span> y.shape[<span class="dv">0</span>]</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    f <span class="op">=</span> w<span class="op">*</span>x[i] <span class="op">+</span> b</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    dw <span class="op">+=</span> (f <span class="op">-</span> y[i])<span class="op">*</span>x[i]</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    db <span class="op">+=</span> (f <span class="op">-</span> y[i])</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  dw <span class="op">=</span> dw<span class="op">/</span>n</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  db <span class="op">=</span> db<span class="op">/</span>n</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> dw, db</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="gradient-descent-function" class="level3">
+<h3 class="anchored" data-anchor-id="gradient-descent-function"><strong>Gradient Descent Function</strong></h3>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> grad_desc(x,y,w,b,a,n,derivative_func, cost_func):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  cost_arr <span class="op">=</span> []</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(n):</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    dw,db <span class="op">=</span> derivative_func(x,y,w,b)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    w <span class="op">=</span> w <span class="op">-</span> a <span class="op">*</span> dw</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    b <span class="op">=</span> b <span class="op">-</span> a <span class="op">*</span> db</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    cost <span class="op">=</span> cost_func(x,y,w,b)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    cost_arr.append(cost)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(i<span class="op">%</span><span class="dv">100</span><span class="op">==</span><span class="dv">0</span> <span class="kw">or</span> i<span class="op">==</span>n<span class="op">-</span><span class="dv">1</span>):</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      <span class="bu">print</span>(<span class="st">"iteration:"</span>,i<span class="op">+</span><span class="dv">1</span>,<span class="st">"w:"</span>, w,<span class="st">"b:"</span>, b, <span class="st">"cost:"</span>, cost)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> w, b, cost, cost_arr</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="implementation-with-learning-rate-0.01" class="level3">
+<h3 class="anchored" data-anchor-id="implementation-with-learning-rate-0.01"><strong>Implementation with learning rate = 0.01</strong></h3>
+<p>The learning rate has been refined ahead, this is just a starting value.</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> np.array([<span class="dv">3</span>,<span class="dv">5</span>])</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> np.array([<span class="dv">30</span>,<span class="dv">50</span>])</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">0.01</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-outputid="cf6ab0c3-08e5-4fe5-dd57-ebc5296c5589" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>w,b,cost,cost_arr <span class="op">=</span> grad_desc(x_train, y_train, w, b, a, n, derivative_func, cost_func)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>iteration: 1 w: 2.49 b: 1.35 cost: 439.75810000000007
+iteration: 101 w: 9.339565362904866 b: 2.7976459389680706 cost: 0.23024051215739977
+iteration: 201 w: 9.375373101618957 b: 2.645962002116952 cost: 0.2059507823972854
+iteration: 301 w: 9.409239384745288 b: 2.5025021246485672 cost: 0.18422355115792033
+iteration: 401 w: 9.441269491530562 b: 2.366820414979559 cost: 0.16478848201589685
+iteration: 501 w: 9.471562976553681 b: 2.2384951531462525 cost: 0.14740375828400765
+iteration: 601 w: 9.500213996701634 b: 2.1171274841748158 cost: 0.1318530742588818
+iteration: 701 w: 9.527311603823819 b: 2.002340178377654 cost: 0.11794294388356959
+iteration: 801 w: 9.552940021519124 b: 1.8937764588645787 cost: 0.10550029333871105
+iteration: 901 w: 9.577178906916032 b: 1.7910988926244504 cost: 0.09437030760858088
+iteration: 1001 w: 9.600103598259423 b: 1.6939883417306432 cost: 0.08441450422840094
+iteration: 1101 w: 9.621785349073628 b: 1.6021429714104642 cost: 0.07550901024591822
+iteration: 1201 w: 9.642291549629508 b: 1.5152773118955152 cost: 0.06754302095871141
+iteration: 1301 w: 9.661685936403957 b: 1.433121371137018 cost: 0.0604174212504073
+iteration: 1401 w: 9.680028790182844 b: 1.355419795628318 cost: 0.05404355237205757
+iteration: 1501 w: 9.6973771234231 b: 1.2819310767262733 cost: 0.04834210882464059
+iteration: 1601 w: 9.713784857456362 b: 1.2124268000046385 cost: 0.043242151617364485
+iteration: 1701 w: 9.729302990084895 b: 1.1466909353063202 cost: 0.03868022562445457
+iteration: 1801 w: 9.74397975409073 b: 1.0845191652878774 cost: 0.034599570058348496
+iteration: 1901 w: 9.757860767150701 b: 1.0257182503692823 cost: 0.030949412235737803
+iteration: 2001 w: 9.7709891736233 b: 0.970105428115095 cost: 0.027684335849326697
+iteration: 2101 w: 9.78340577864811 b: 0.9175078451802461 cost: 0.024763715885153796
+iteration: 2201 w: 9.795149174974528 b: 0.8677620200548155 cost: 0.022151213154551198
+iteration: 2301 w: 9.806255862914089 b: 0.8207133349379552 cost: 0.019814322151569225
+iteration: 2401 w: 9.81676036378913 b: 0.7762155551615757 cost: 0.01772396661017591
+iteration: 2501 w: 9.826695327230455 b: 0.7341303746701543 cost: 0.01585413772904501
+iteration: 2601 w: 9.836091632657489 b: 0.694326986143886 cost: 0.014181570562607746
+iteration: 2701 w: 9.844978485256348 b: 0.6566816744290933 cost: 0.012685454551954486
+iteration: 2801 w: 9.853383506754124 b: 0.621077432012172 cost: 0.011347174593905366
+iteration: 2901 w: 9.861332821271517 b: 0.5874035953419712 cost: 0.010150079426577727
+iteration: 3001 w: 9.868851136520698 b: 0.5555555008701584 cost: 0.009079274449621191
+iteration: 3101 w: 9.875961820600743 b: 0.5254341597405601 cost: 0.008121436401343444
+iteration: 3201 w: 9.88268697462933 b: 0.49694595011631976 cost: 0.007264647586881216
+iteration: 3301 w: 9.889047501436464 b: 0.47000232618859034 cost: 0.00649824759482768
+iteration: 3401 w: 9.895063170533751 b: 0.44451954296232915 cost: 0.00581270065735045
+iteration: 3501 w: 9.900752679561133 b: 0.42041839596374814 cost: 0.00519947700343959
+iteration: 3601 w: 9.906133712402054 b: 0.3976239750604395 cost: 0.004650946729058455
+iteration: 3701 w: 9.911222994147764 b: 0.37606543162896877 cost: 0.004160284863694492
+iteration: 3801 w: 9.916036343081492 b: 0.3556757583462743 cost: 0.0037213864521273275
+iteration: 3901 w: 9.920588719844154 b: 0.33639158092044336 cost: 0.0033287905948298775
+iteration: 4001 w: 9.924894273934369 b: 0.3181529611134936 cost: 0.0029776125018920884
+iteration: 4101 w: 9.928966387687296 b: 0.30090321044397317 cost: 0.00266348271507243
+iteration: 4201 w: 9.932817717869048 b: 0.2845887139902829 cost: 0.0023824927417454853
+iteration: 4301 w: 9.93646023501587 b: 0.2691587637471333 cost: 0.002131146424322084
+iteration: 4401 w: 9.939905260640463 b: 0.2545654010171292 cost: 0.001906316440054949
+iteration: 4501 w: 9.943163502421001 b: 0.2407632673476406 cost: 0.0017052053899958256
+iteration: 4601 w: 9.946245087482273 b: 0.2277094635496474 cost: 0.0015253109929568177
+iteration: 4701 w: 9.949159593872366 b: 0.21536341636035097 cost: 0.001364394951414451
+iteration: 4801 w: 9.951916080332746 b: 0.2036867523351264 cost: 0.001220455101970358
+iteration: 4901 w: 9.95452311445423 b: 0.19264317857686616 cost: 0.0010917005038612597
+iteration: 5001 w: 9.956988799306398 b: 0.1821983699319763 cost: 0.0009765291555642971
+iteration: 5101 w: 9.959320798623219 b: 0.17231986230243798 cost: 0.0008735080622334296
+iteration: 5201 w: 9.961526360623111 b: 0.16297695174230992 cost: 0.0007813554059691848
+iteration: 5301 w: 9.963612340537546 b: 0.1541405990250685 cost: 0.0006989245970740047
+iteration: 5401 w: 9.965585221918182 b: 0.14578333938515137 cost: 0.0006251900078543284
+iteration: 5501 w: 9.967451136788755 b: 0.1378791971531778 cost: 0.0005592342114691611
+iteration: 5601 w: 9.969215884704363 b: 0.13040360501950188 cost: 0.0005002365670410818
+iteration: 5701 w: 9.970884950777405 b: 0.12333332767517048 cost: 0.00044746300900952603
+iteration: 5801 w: 9.97246352272614 b: 0.11664638959295495 cost: 0.00040025691367620076
+iteration: 5901 w: 9.97395650699895 b: 0.11032200672398479 cost: 0.0003580309293056527
+iteration: 6001 w: 9.975368544024345 b: 0.10434052189766362 cost: 0.00032025966812710625
+iteration: 6101 w: 9.976704022634133 b: 0.09868334372411054 cost: 0.00028647316930910654
+iteration: 6201 w: 9.977967093704596 b: 0.09333288880922198 cost: 0.00025625105157298534
+iteration: 6301 w: 9.979161683058063 b: 0.08827252710273104 cost: 0.0002292172826886905
+iteration: 6401 w: 9.980291503664992 b: 0.08348653020940747 cost: 0.00020503550077424578
+iteration: 6501 w: 9.981360067184436 b: 0.07896002250274999 cost: 0.0001834048291849217
+iteration: 6601 w: 9.982370694878863 b: 0.07467893488921702 cost: 0.00016405613292008877
+iteration: 6701 w: 9.983326527937127 b: 0.07062996107927426 cost: 0.00014674866996850262
+iteration: 6801 w: 9.984230537237789 b: 0.06680051622937841 cost: 0.00013126709592753912
+iteration: 6901 w: 9.985085532583073 b: 0.06317869782630874 cost: 0.00011741878462651558
+iteration: 7001 w: 9.985894171432166 b: 0.0597532486922987 cost: 0.00010503143141656318
+iteration: 7101 w: 9.986658967161024 b: 0.05651352199596749 cost: 9.395090930719517e-05
+iteration: 7201 w: 9.987382296874317 b: 0.05344944816030203 cost: 8.403935127422673e-05
+iteration: 7301 w: 9.988066408793873 b: 0.05055150356484316 cost: 7.517343487865789e-05
+iteration: 7401 w: 9.98871342924648 b: 0.04781068094477002 cost: 6.724284785364107e-05
+iteration: 7501 w: 9.989325369272846 b: 0.04521846139493253 cost: 6.014891556793781e-05
+iteration: 7601 w: 9.989904130878234 b: 0.0427667878917476 cost: 5.380337328775985e-05
+iteration: 7701 w: 9.990451512944183 b: 0.040448040250715044 cost: 4.812726796165485e-05
+iteration: 7801 w: 9.990969216819725 b: 0.03825501144170068 cost: 4.3049975864271824e-05
+iteration: 7901 w: 9.991458851609437 b: 0.03618088518834209 cost: 3.850832387553253e-05
+iteration: 8001 w: 9.991921939174778 b: 0.034219214782015284 cost: 3.4445803462908096e-05
+iteration: 8101 w: 9.992359918864297 b: 0.03236390304444657 cost: 3.081186758585819e-05
+iteration: 8201 w: 9.992774151987335 b: 0.030609183376727626 cost: 2.756130177513599e-05
+iteration: 8301 w: 9.993165926045192 b: 0.02894960183582901 cost: 2.4653661561485263e-05
+iteration: 8401 w: 9.993536458732882 b: 0.027380000182893945 cost: 2.205276925405976e-05
+iteration: 8501 w: 9.993886901723917 b: 0.025895499850621943 cost: 1.97262638071178e-05
+iteration: 8601 w: 9.994218344249902 b: 0.024491486779919497 cost: 1.7645198174645112e-05
+iteration: 8701 w: 9.994531816486013 b: 0.02316359707868738 cost: 1.5783679143059506e-05
+iteration: 8801 w: 9.994828292752969 b: 0.021907703458153932 cost: 1.4118545160273562e-05
+iteration: 8901 w: 9.995108694545348 b: 0.020719902404621453 cost: 1.262907815320633e-05
+iteration: 9001 w: 9.995373893395755 b: 0.019596502046739055 cost: 1.1296745747482045e-05
+iteration: 9101 w: 9.995624713583677 b: 0.018534010680580106 cost: 1.0104970682320256e-05
+iteration: 9201 w: 9.99586193469746 b: 0.01752912591688735 cost: 9.038924551674657e-06
+iteration: 9301 w: 9.996086294057417 b: 0.016578724416733255 cost: 8.085343304708596e-06
+iteration: 9401 w: 9.996298489007502 b: 0.015679852183681973 cost: 7.23236221095301e-06
+iteration: 9501 w: 9.996499179082797 b: 0.014829715382324277 cost: 6.469368235706646e-06
+iteration: 9601 w: 9.996688988059427 b: 0.014025671654583972 cost: 5.786867989809793e-06
+iteration: 9701 w: 9.996868505893358 b: 0.013265221906866779 cost: 5.176369610027965e-06
+iteration: 9801 w: 9.997038290554087 b: 0.012546002542482825 cost: 4.630277100996098e-06
+iteration: 9901 w: 9.997198869758881 b: 0.011865778115217215 cost: 4.141795823558715e-06
+iteration: 10000 w: 9.997349265409245 b: 0.011228691916751294 cost: 3.7089806903241235e-06</code></pre>
+</div>
+</div>
+<p>###<strong>Result of the model</strong></p>
+<div class="cell" data-outputid="5bd57f6d-e441-4363-c66f-fc4e71b7dbb2" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"After 10000 iterations"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"w:"</span>, w,<span class="st">"b:"</span>, b, <span class="st">"cost:"</span>, cost)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>After 10000 iterations
+w: 9.997349265409245 b: 0.011228691916751294 cost: 3.7089806903241235e-06</code></pre>
+</div>
+</div>
+</section>
+<section id="visualizing-the-cost" class="level3">
+<h3 class="anchored" data-anchor-id="visualizing-the-cost"><strong>Visualizing the cost</strong></h3>
+<div class="cell" data-outputid="f3a19478-0a78-4cba-b4e6-8cdacdbdc867" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>plt.plot(np.arange(<span class="dv">1</span>,<span class="dv">10001</span>,<span class="dv">1</span>), cost_arr)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>plt.xlim([<span class="dv">0</span>,<span class="dv">100</span>])</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Cost vs Number of iterations"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Number of iterations"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Cost"</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="gradient_descent_from_scratch_files/figure-html/cell-8-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="finding-an-optimal-learning-rate" class="level2">
+<h2 class="anchored" data-anchor-id="finding-an-optimal-learning-rate"><strong>Finding an optimal learning rate</strong></h2>
+<p>Let’s plot the cost for a variety of learning rates.</p>
+<div class="cell" data-outputid="1a839633-a431-4a1b-97ab-347255966d9c" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">40</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> [<span class="fl">0.001</span>,<span class="fl">0.003</span>,<span class="fl">0.01</span>,<span class="fl">0.03</span>,<span class="fl">0.1</span>]</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> []</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(a)):</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  w,b,cost,cost_arr <span class="op">=</span> grad_desc(x_train, y_train, w, b, a[i], n, derivative_func, cost_func)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  y.append(cost_arr)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(a)):</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  plt.plot(np.arange(<span class="dv">0</span>,<span class="dv">40</span>,<span class="dv">1</span>),y[i],label<span class="op">=</span>a[i])</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>iteration: 1 w: 1.149 b: 1.035 cost: 629.784181
+iteration: 40 w: 5.279480251821813 b: 2.003290665567403 cost: 153.58840104275913
+iteration: 1 w: 5.496187270992092 b: 2.0539270305488393 cost: 137.52409463762862
+iteration: 40 w: 8.867665170298114 b: 2.8295651380794244 cost: 2.0857072160129806
+iteration: 1 w: 8.946979485824258 b: 2.8465628798867058 cost: 1.4867474127639555
+iteration: 40 w: 9.32262651466889 b: 2.8686787258659976 cost: 0.24208731712957882
+iteration: 1 w: 9.323845545083836 b: 2.863903182329751 cost: 0.2412783368311639
+iteration: 40 w: 9.366629881783739 b: 2.6829988756811596 cost: 0.21175672971498352
+iteration: 1 w: 9.370159532478919 b: 2.6680470353995482 cost: 0.20940314645599492
+iteration: 40 w: 9.493502617986875 b: 2.145557340633284 cost: 0.1354180298957514</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="gradient_descent_from_scratch_files/figure-html/cell-9-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>It is clear that 0.0001 is very slow and 0.1 is large but not too large that the cost increases with number of iterations.</p>
+</section>
+<section id="visualizing-fast-verses-slow-learning-rates" class="level2">
+<h2 class="anchored" data-anchor-id="visualizing-fast-verses-slow-learning-rates"><strong>Visualizing fast verses slow learning rates</strong></h2>
+<div class="cell" data-outputid="2428ec86-68aa-46cd-c3a7-d886855a6900" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> [<span class="fl">0.001</span>,<span class="fl">0.1</span>]</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> []</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(a)):</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  w,b,cost,cost_arr <span class="op">=</span> grad_desc(x_train, y_train, w, b, a[i], n, derivative_func, cost_func)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  y.append(cost_arr)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(a)):</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  plt.plot(np.arange(<span class="dv">0</span>,<span class="dv">100</span>,<span class="dv">1</span>),y[i],label<span class="op">=</span>a[i])</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>iteration: 1 w: 1.149 b: 1.035 cost: 629.784181
+iteration: 100 w: 7.9476347185687555 b: 2.6227491584391602 cost: 17.71177692691945
+iteration: 1 w: 10.387556033626208 b: 3.181420355167742 cost: 11.269329627924463
+iteration: 100 w: 9.602662229726635 b: 1.6831498042914486 cost: 0.08333775207969249</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="gradient_descent_from_scratch_files/figure-html/cell-10-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Conclusions:</p>
+<p>0.001 - Slow learning rate</p>
+<p>0.01 - Fast learning rate</p>
+</section>
+<section id="checking-if-we-can-do-better" class="level2">
+<h2 class="anchored" data-anchor-id="checking-if-we-can-do-better"><strong>Checking if we can do better</strong></h2>
+<p>Increase the learning rate and check if the cost function still continues to decrease.</p>
+<div class="cell" data-outputid="02bcf392-f3da-448e-ed7a-caf49c0c897b" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">100</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> [<span class="fl">0.001</span>,<span class="fl">0.1</span>,<span class="fl">0.3</span>]</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> []</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(a)):</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  w,b,cost,cost_arr <span class="op">=</span> grad_desc(x_train, y_train, w, b, a[i], n, derivative_func, cost_func)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  y.append(cost_arr)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(a)):</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  plt.plot(np.arange(<span class="dv">0</span>,<span class="dv">100</span>,<span class="dv">1</span>),y[i],label<span class="op">=</span>a[i])</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>iteration: 1 w: 1.149 b: 1.035 cost: 629.784181
+iteration: 100 w: 7.9476347185687555 b: 2.6227491584391602 cost: 17.71177692691945
+iteration: 1 w: 10.387556033626208 b: 3.181420355167742 cost: 11.269329627924463
+iteration: 100 w: 9.602662229726635 b: 1.6831498042914486 cost: 0.08333775207969249
+iteration: 1 w: 9.609305092971061 b: 1.6550101873320526 cost: 0.08057449321585036
+iteration: 100 w: -2.0801856610004073e+54 b: -4.910652218164293e+53 cost: 4.098756512416235e+109</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<p><img src="gradient_descent_from_scratch_files/figure-html/cell-11-output-2.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="conclusion-set-the-learning-rate-to-0.1" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion-set-the-learning-rate-to-0.1"><strong>Conclusion: Set the learning rate to 0.1</strong></h2>
+<div class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>x_train <span class="op">=</span> np.array([<span class="dv">3</span>,<span class="dv">5</span>])</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>y_train <span class="op">=</span> np.array([<span class="dv">30</span>,<span class="dv">50</span>])</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>w <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> <span class="fl">0.1</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="dv">10000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-outputid="5feda3e6-4b08-4886-aaa4-44d84db62a4b" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>w,b,cost,cost_arr <span class="op">=</span> grad_desc(x_train, y_train, w, b, a, n, derivative_func, cost_func)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>iteration: 1 w: 15.9 b: 4.5 cost: 412.21000000000004
+iteration: 101 w: 9.60266836170258 b: 1.6831238324254831 cost: 0.08333518019207553
+iteration: 201 w: 9.772777027894861 b: 0.962531955886906 cost: 0.02725376794504336
+iteration: 301 w: 9.870057468399038 b: 0.5504453970300839 cost: 0.008913016873429894
+iteration: 401 w: 9.925689461050384 b: 0.3147844944352242 cost: 0.002914894921914694
+iteration: 501 w: 9.957503858583115 b: 0.18001654382337315 cost: 0.0009532813105214929
+iteration: 601 w: 9.975697632383632 b: 0.10294648123711944 cost: 0.0003117591821775748
+iteration: 701 w: 9.9861021482876 b: 0.05887224459493621 cost: 0.0001019570892655447
+iteration: 801 w: 9.99205220309112 b: 0.03366740797738293 cost: 3.334383923801124e-05
+iteration: 901 w: 9.995454874824398 b: 0.01925345921009804 cost: 1.0904701410566107e-05
+iteration: 1001 w: 9.997400768653412 b: 0.011010520673404262 cost: 3.566251384688875e-06
+iteration: 1101 w: 9.998513571500878 b: 0.006296612165977895 cost: 1.1662996041765428e-06
+iteration: 1201 w: 9.999149952663545 b: 0.003600858301325476 cost: 3.814242519604661e-07
+iteration: 1301 w: 9.999513881444926 b: 0.002059231244427411 cost: 1.247402120866741e-07
+iteration: 1401 w: 9.999722002246868 b: 0.0011776173798518413 cost: 4.079478541682378e-08
+iteration: 1501 w: 9.999841020775817 b: 0.0006734468006357401 cost: 1.334144370438836e-08
+iteration: 1601 w: 9.999909084179867 b: 0.00038512559431133533 cost: 4.363158631288135e-09
+iteration: 1701 w: 9.999948007757663 b: 0.00022024267285022806 cost: 1.4269185302952782e-09
+iteration: 1801 w: 9.999970267074978 b: 0.0001259506915682373 cost: 4.66656535884604e-10
+iteration: 1901 w: 9.999982996562743 b: 7.20277160697712e-05 cost: 1.5261440495607602e-10
+iteration: 2001 w: 9.999990276204635 b: 4.119065816756014e-05 cost: 4.9910704804512534e-11
+iteration: 2101 w: 9.999994439230438 b: 2.355579786254431e-05 cost: 1.6322695470293246e-11
+iteration: 2201 w: 9.99999681994973 b: 1.3470909124573112e-05 cost: 5.338141149193196e-12
+iteration: 2301 w: 9.999998181417226 b: 7.703640252503084e-06 cost: 1.7457748318741034e-12
+iteration: 2401 w: 9.999998960002822 b: 4.405498737407422e-06 cost: 5.709346551062598e-13
+iteration: 2501 w: 9.999999405254385 b: 2.519382849046461e-06 cost: 1.867173088141536e-13
+iteration: 2601 w: 9.999999659881437 b: 1.4407653511503998e-06 cost: 6.106364823594468e-14
+iteration: 2701 w: 9.999999805495602 b: 8.239338454550408e-07 cost: 1.9970131332789973e-14
+iteration: 2801 w: 9.999999888768317 b: 4.711849721437697e-07 cost: 6.530991282823491e-15
+iteration: 2901 w: 9.999999936389676 b: 2.694576496529729e-07 cost: 2.1358820037435938e-15
+iteration: 3001 w: 9.999999963623017 b: 1.540953754307092e-07 cost: 6.985144677984442e-16
+iteration: 3101 w: 9.999999979197007 b: 8.812288271748043e-08 cost: 2.284407747483156e-16
+iteration: 3201 w: 9.999999988103344 b: 5.039503911269594e-08 cost: 7.470882133172757e-17
+iteration: 3301 w: 9.99999999319663 b: 2.881952742434168e-08 cost: 2.4432604956797844e-17
+iteration: 3401 w: 9.999999996109342 b: 1.6481090130251214e-08 cost: 7.990396382009646e-18
+iteration: 3501 w: 9.999999997775038 b: 9.425080487015262e-09 cost: 2.6131649171968987e-18
+iteration: 3601 w: 9.999999998727608 b: 5.389941863777911e-09 cost: 8.54600922971168e-19
+iteration: 3701 w: 9.999999999272351 b: 3.082358228491976e-09 cost: 2.7948981881301694e-19
+iteration: 3801 w: 9.99999999958388 b: 1.7627151669994074e-09 cost: 9.14036778361001e-20
+iteration: 3901 w: 9.99999999976203 b: 1.008047016805869e-09 cost: 2.989179777548941e-20
+iteration: 4001 w: 9.999999999863913 b: 5.764763265101116e-10 cost: 9.775802261103237e-21
+iteration: 4101 w: 9.999999999922176 b: 3.2967285995751955e-10 cost: 3.1974078561318533e-21
+iteration: 4201 w: 9.999999999955492 b: 1.885294074763455e-10 cost: 1.0455682344656884e-21
+iteration: 4301 w: 9.999999999974548 b: 1.0781495013630904e-10 cost: 3.4190433540753846e-22
+iteration: 4401 w: 9.999999999985445 b: 6.1654718943338e-11 cost: 1.1180010956842834e-22
+iteration: 4501 w: 9.999999999991676 b: 3.525858921690209e-11 cost: 3.657881437649431e-23
+iteration: 4601 w: 9.999999999995238 b: 2.0162220617259075e-11 cost: 1.1943622317753894e-23
+iteration: 4701 w: 9.999999999997277 b: 1.1530192191877509e-11 cost: 3.9014567571770745e-24
+iteration: 4801 w: 9.999999999998444 b: 6.594051806552098e-12 cost: 1.278964408416722e-24
+iteration: 4901 w: 9.999999999999112 b: 3.771776060112977e-12 cost: 4.186895031678625e-25
+iteration: 5001 w: 9.999999999999492 b: 2.1570676930981497e-12 cost: 1.3678217007808168e-25
+iteration: 5101 w: 9.999999999999709 b: 1.2340726793457789e-12 cost: 4.4318205655316443e-26
+iteration: 5201 w: 9.999999999999833 b: 7.047183412045043e-13 cost: 1.4808496912808834e-26
+iteration: 5301 w: 9.999999999999904 b: 4.0184950008676143e-13 cost: 4.758408980293143e-27
+iteration: 5401 w: 9.999999999999945 b: 2.3043106508463737e-13 cost: 1.7575820968324143e-27
+iteration: 5501 w: 9.99999999999997 b: 1.3237616754974336e-13 cost: 4.322957760611145e-28
+iteration: 5601 w: 9.99999999999998 b: 7.446693458529524e-14 cost: 2.808344822586802e-28
+iteration: 5701 w: 9.999999999999991 b: 4.373596126367095e-14 cost: 5.048709793414476e-29
+iteration: 5801 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 5901 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6001 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6101 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6201 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6301 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6401 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6501 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6601 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6701 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6801 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 6901 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7001 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7101 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7201 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7301 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7401 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7501 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7601 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7701 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7801 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 7901 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8001 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8101 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8201 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8301 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8401 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8501 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8601 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8701 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8801 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 8901 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9001 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9101 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9201 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9301 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9401 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9501 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9601 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9701 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9801 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 9901 w: 9.999999999999996 b: 3.005801360028904e-14 cost: 1.2937318845624594e-28
+iteration: 10000 w: 9.99999999999999 b: 2.845929244482882e-14 cost: 2.0510383535746307e-28</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="fe221861-3ac1-4a57-adce-84dd182ae87a" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"After 10000 iterations"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"w:"</span>, w,<span class="st">"b:"</span>, b, <span class="st">"cost:"</span>, cost)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>After 10000 iterations
+w: 9.99999999999999 b: 2.845929244482882e-14 cost: 2.0510383535746307e-28</code></pre>
+</div>
+</div>
+</section>
+<section id="comparing-costs" class="level2">
+<h2 class="anchored" data-anchor-id="comparing-costs"><strong>Comparing costs</strong></h2>
+<p>0.001 - cost: 3.7089806903241235e-06</p>
+<p>0.1 - cost: 2.0510383535746307e-28</p>
+<p>The cost defers by several orders of magnitude!</p>
+</section>
+<section id="final-model" class="level2">
+<h2 class="anchored" data-anchor-id="final-model"><strong>Final model</strong></h2>
+<div class="cell" data-outputid="295e89f1-ab78-43b5-b4bd-29f8dceaa7f1" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"w:"</span>, w,<span class="st">"b:"</span>, b, <span class="st">"cost:"</span>, cost)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>w: 9.99999999999999 b: 2.845929244482882e-14 cost: 2.0510383535746307e-28</code></pre>
+</div>
+</div>
+<p>y = 10x is the line that fits the data best.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
