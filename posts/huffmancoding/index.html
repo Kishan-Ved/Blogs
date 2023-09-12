@@ -460,7 +460,7 @@ However, using Huffman coding, we need only:
  'p': 0.025069637883008356}</code></pre>
 </div>
 </div>
-<p>Calculating the entropy: Entropy = -<span class="math inline">\(\sum_{i=1}^{n} prob[i]*log(prob[i])\)</span></p>
+<p>Calculating the entropy: Entropy = -<span class="math inline">\(\sum_{i=1}^{n} prob[i]*log(prob[i])\)</span> (i denotes every character)</p>
 <div class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np </span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -477,7 +477,66 @@ However, using Huffman coding, we need only:
 </section>
 <section id="cross-entropy" class="level2">
 <h2 class="anchored" data-anchor-id="cross-entropy">Cross Entropy</h2>
-<p>Calculating the cross entropy: Cross entropy = -<span class="math inline">\(\sum_{i=1}^{n} prob[i]*log(q[i])\)</span> q[i] = <span class="math inline">\(\frac{1}{log(2^{length of Huffman code})}\)</span></p>
+<p>Calculating the cross entropy: Cross entropy = -<span class="math inline">\(\sum_{i=1}^{n} prob[i]*log(q[i])\)</span> (i denotes every character) q[i] = <span class="math inline">\(\frac{1}{log(2^{l})}\)</span> where l is the length of its huffman code</p>
+<p>Finding q values:</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> {} <span class="co"># Stores q values needed to find cross entropy</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(codes)):</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  q[<span class="bu">list</span>(codes.keys())[i]] <span class="op">=</span> np.log2(<span class="dv">1</span><span class="op">/</span>(<span class="dv">2</span><span class="op">**</span>(<span class="bu">len</span>(codes[<span class="bu">list</span>(codes.keys())[i]]))))</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>q</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<pre><code>{'o': -3.0,
+ 'i': -3.0,
+ 'r': -4.0,
+ 'c': -5.0,
+ 'm': -5.0,
+ 't': -3.0,
+ 'e': -3.0,
+ 's': -4.0,
+ 'u': -5.0,
+ 'd': -7.0,
+ 'v': -7.0,
+ 'w': -7.0,
+ 'x': -8.0,
+ 'q': -8.0,
+ 'y': -5.0,
+ 'l': -5.0,
+ 'n': -4.0,
+ 'h': -5.0,
+ 'k': -7.0,
+ 'b': -7.0,
+ 'f': -6.0,
+ 'a': -5.0,
+ 'g': -6.0,
+ 'p': -6.0}</code></pre>
+</div>
+</div>
+<p>Calculating cross entropy:</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>cross_entropy <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>sym <span class="op">=</span> <span class="bu">list</span>(q.keys())</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>lq <span class="op">=</span> <span class="bu">list</span>(q.values())</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sym)):</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  cross_entropy <span class="op">+=</span> <span class="op">-</span><span class="dv">1</span><span class="op">*</span>prob[sym[i]]<span class="op">*</span>q[sym[i]]</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Cross entropy is:"</span>,cross_entropy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Cross entropy is: 4.13649025069638</code></pre>
+</div>
+</div>
+</section>
+<section id="kl-divergence" class="level2">
+<h2 class="anchored" data-anchor-id="kl-divergence">KL Divergence</h2>
+<p>KL Divergence is the difference between cross entropy and entropy.</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>kl_divergence <span class="op">=</span> cross_entropy <span class="op">-</span> entropy</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"KL Divergence is:"</span>,kl_divergence)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>KL Divergence is: 0.03365252875567837</code></pre>
+</div>
+</div>
 
 
 </section>

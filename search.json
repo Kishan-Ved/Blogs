@@ -221,14 +221,21 @@
     "href": "posts/huffmancoding/index.html#entropy",
     "title": "Huffman Coding",
     "section": "Entropy",
-    "text": "Entropy\nFirst, we calculate the probability of every letter in the string:\n\nprob = {}\nsum_p = 0\n\nfor i in range(len(codes)):\n  prob[list(codes.keys())[i]] = d[list(codes.keys())[i]]/s_len\n  sum_p += prob[list(codes.keys())[i]]\n\nprob\n\n{'o': 0.0947075208913649,\n 'i': 0.10027855153203342,\n 'r': 0.052924791086350974,\n 'c': 0.027855153203342618,\n 'm': 0.027855153203342618,\n 't': 0.11420612813370473,\n 'e': 0.11977715877437325,\n 's': 0.06406685236768803,\n 'u': 0.033426183844011144,\n 'd': 0.008356545961002786,\n 'v': 0.008356545961002786,\n 'w': 0.008356545961002786,\n 'x': 0.002785515320334262,\n 'q': 0.005571030640668524,\n 'y': 0.036211699164345405,\n 'l': 0.03899721448467967,\n 'n': 0.07799442896935933,\n 'h': 0.03899721448467967,\n 'k': 0.008356545961002786,\n 'b': 0.011142061281337047,\n 'f': 0.025069637883008356,\n 'a': 0.04456824512534819,\n 'g': 0.025069637883008356,\n 'p': 0.025069637883008356}\n\n\nCalculating the entropy: Entropy = -\\(\\sum_{i=1}^{n} prob[i]*log(prob[i])\\)\n\nimport numpy as np \n\nsym = list(d.keys())\nentropy = 0\n\nfor i in range(len(sym)):\n  entropy += -1*prob[sym[i]]*np.log2(prob[sym[i]])\nprint(\"Entropy of Huffman coding is:\",entropy)\n\nEntropy of Huffman coding is: 4.102837721940702"
+    "text": "Entropy\nFirst, we calculate the probability of every letter in the string:\n\nprob = {}\nsum_p = 0\n\nfor i in range(len(codes)):\n  prob[list(codes.keys())[i]] = d[list(codes.keys())[i]]/s_len\n  sum_p += prob[list(codes.keys())[i]]\n\nprob\n\n{'o': 0.0947075208913649,\n 'i': 0.10027855153203342,\n 'r': 0.052924791086350974,\n 'c': 0.027855153203342618,\n 'm': 0.027855153203342618,\n 't': 0.11420612813370473,\n 'e': 0.11977715877437325,\n 's': 0.06406685236768803,\n 'u': 0.033426183844011144,\n 'd': 0.008356545961002786,\n 'v': 0.008356545961002786,\n 'w': 0.008356545961002786,\n 'x': 0.002785515320334262,\n 'q': 0.005571030640668524,\n 'y': 0.036211699164345405,\n 'l': 0.03899721448467967,\n 'n': 0.07799442896935933,\n 'h': 0.03899721448467967,\n 'k': 0.008356545961002786,\n 'b': 0.011142061281337047,\n 'f': 0.025069637883008356,\n 'a': 0.04456824512534819,\n 'g': 0.025069637883008356,\n 'p': 0.025069637883008356}\n\n\nCalculating the entropy: Entropy = -\\(\\sum_{i=1}^{n} prob[i]*log(prob[i])\\) (i denotes every character)\n\nimport numpy as np \n\nsym = list(d.keys())\nentropy = 0\n\nfor i in range(len(sym)):\n  entropy += -1*prob[sym[i]]*np.log2(prob[sym[i]])\nprint(\"Entropy of Huffman coding is:\",entropy)\n\nEntropy of Huffman coding is: 4.102837721940702"
   },
   {
     "objectID": "posts/huffmancoding/index.html#cross-entropy",
     "href": "posts/huffmancoding/index.html#cross-entropy",
     "title": "Huffman Coding",
     "section": "Cross Entropy",
-    "text": "Cross Entropy\nCalculating the cross entropy: Cross entropy = -\\(\\sum_{i=1}^{n} prob[i]*log(q[i])\\) q[i] = \\(\\frac{1}{log(2^{length of Huffman code})}\\)"
+    "text": "Cross Entropy\nCalculating the cross entropy: Cross entropy = -\\(\\sum_{i=1}^{n} prob[i]*log(q[i])\\) (i denotes every character) q[i] = \\(\\frac{1}{log(2^{l})}\\) where l is the length of its huffman code\nFinding q values:\n\nq = {} # Stores q values needed to find cross entropy\n\nfor i in range(len(codes)):\n  q[list(codes.keys())[i]] = np.log2(1/(2**(len(codes[list(codes.keys())[i]]))))\nq\n\n{'o': -3.0,\n 'i': -3.0,\n 'r': -4.0,\n 'c': -5.0,\n 'm': -5.0,\n 't': -3.0,\n 'e': -3.0,\n 's': -4.0,\n 'u': -5.0,\n 'd': -7.0,\n 'v': -7.0,\n 'w': -7.0,\n 'x': -8.0,\n 'q': -8.0,\n 'y': -5.0,\n 'l': -5.0,\n 'n': -4.0,\n 'h': -5.0,\n 'k': -7.0,\n 'b': -7.0,\n 'f': -6.0,\n 'a': -5.0,\n 'g': -6.0,\n 'p': -6.0}\n\n\nCalculating cross entropy:\n\ncross_entropy = 0\nsym = list(q.keys())\nlq = list(q.values())\n\nfor i in range(len(sym)):\n  cross_entropy += -1*prob[sym[i]]*q[sym[i]]\n\nprint(\"Cross entropy is:\",cross_entropy)\n\nCross entropy is: 4.13649025069638"
+  },
+  {
+    "objectID": "posts/huffmancoding/index.html#kl-divergence",
+    "href": "posts/huffmancoding/index.html#kl-divergence",
+    "title": "Huffman Coding",
+    "section": "KL Divergence",
+    "text": "KL Divergence\nKL Divergence is the difference between cross entropy and entropy.\n\nkl_divergence = cross_entropy - entropy\nprint(\"KL Divergence is:\",kl_divergence)\n\nKL Divergence is: 0.03365252875567837"
   },
   {
     "objectID": "posts/linalg/index.html",
