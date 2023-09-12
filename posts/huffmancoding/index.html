@@ -96,6 +96,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -151,6 +153,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
                           <div class="quarto-categories">
                 <div class="quarto-category">Information Theory</div>
                 <div class="quarto-category">Coding</div>
+                <div class="quarto-category">Huffman coding</div>
               </div>
                   </div>
   </div>
@@ -208,16 +211,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> <span class="st">"Life is like riding a bicycle. To keep your balance, you must keep moving. The important thing is not to stop questioning. Curiosity has its own reason for existing. One cannot help but be in awe when contemplating the mysteries of eternity, of life, of the marvelous structure of reality. It is enough if one tries merely to comprehend a little of this mystery each day. The important thing is not to stop questioning; never lose a holy curiosity."</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> s.lower()</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>arr <span class="op">=</span> [<span class="dv">0</span>]<span class="op">*</span><span class="dv">26</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> {}</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(s)):</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(s[i]<span class="op">==</span><span class="st">' '</span> <span class="kw">or</span> s[i]<span class="op">==</span><span class="st">','</span> <span class="kw">or</span> s[i]<span class="op">==</span><span class="st">'.'</span> <span class="kw">or</span> s[i]<span class="op">==</span><span class="st">';'</span>):</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">continue</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  arr[<span class="bu">ord</span>(s[i])<span class="op">-</span><span class="bu">ord</span>(<span class="st">'a'</span>)]<span class="op">+=</span><span class="dv">1</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(arr)):</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="bu">chr</span>(i<span class="op">+</span><span class="bu">ord</span>(<span class="st">'a'</span>)), arr[i])</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> arr[i]<span class="op">!=</span><span class="dv">0</span>:</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    d[<span class="bu">chr</span>(i<span class="op">+</span><span class="bu">ord</span>(<span class="st">'a'</span>))] <span class="op">=</span> arr[i]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>s_len <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>arr <span class="op">=</span> [<span class="dv">0</span>]<span class="op">*</span><span class="dv">26</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> {}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(s)):</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(s[i]<span class="op">==</span><span class="st">' '</span> <span class="kw">or</span> s[i]<span class="op">==</span><span class="st">','</span> <span class="kw">or</span> s[i]<span class="op">==</span><span class="st">'.'</span> <span class="kw">or</span> s[i]<span class="op">==</span><span class="st">';'</span>):</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">continue</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  s_len<span class="op">+=</span><span class="dv">1</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  arr[<span class="bu">ord</span>(s[i])<span class="op">-</span><span class="bu">ord</span>(<span class="st">'a'</span>)]<span class="op">+=</span><span class="dv">1</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(arr)):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="bu">chr</span>(i<span class="op">+</span><span class="bu">ord</span>(<span class="st">'a'</span>)), arr[i])</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> arr[i]<span class="op">!=</span><span class="dv">0</span>:</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    d[<span class="bu">chr</span>(i<span class="op">+</span><span class="bu">ord</span>(<span class="st">'a'</span>))] <span class="op">=</span> arr[i]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>a 16
 b 4
@@ -415,6 +420,64 @@ However, using Huffman coding, we need only:
 <pre><code>Compression ratio:  2240  :  1485  =  1.5084175084175084</code></pre>
 </div>
 </div>
+</section>
+<section id="entropy" class="level2">
+<h2 class="anchored" data-anchor-id="entropy">Entropy</h2>
+<p>First, we calculate the probability of every letter in the string:</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>prob <span class="op">=</span> {}</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>sum_p <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(codes)):</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  prob[<span class="bu">list</span>(codes.keys())[i]] <span class="op">=</span> d[<span class="bu">list</span>(codes.keys())[i]]<span class="op">/</span>s_len</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  sum_p <span class="op">+=</span> prob[<span class="bu">list</span>(codes.keys())[i]]</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>prob</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>{'o': 0.0947075208913649,
+ 'i': 0.10027855153203342,
+ 'r': 0.052924791086350974,
+ 'c': 0.027855153203342618,
+ 'm': 0.027855153203342618,
+ 't': 0.11420612813370473,
+ 'e': 0.11977715877437325,
+ 's': 0.06406685236768803,
+ 'u': 0.033426183844011144,
+ 'd': 0.008356545961002786,
+ 'v': 0.008356545961002786,
+ 'w': 0.008356545961002786,
+ 'x': 0.002785515320334262,
+ 'q': 0.005571030640668524,
+ 'y': 0.036211699164345405,
+ 'l': 0.03899721448467967,
+ 'n': 0.07799442896935933,
+ 'h': 0.03899721448467967,
+ 'k': 0.008356545961002786,
+ 'b': 0.011142061281337047,
+ 'f': 0.025069637883008356,
+ 'a': 0.04456824512534819,
+ 'g': 0.025069637883008356,
+ 'p': 0.025069637883008356}</code></pre>
+</div>
+</div>
+<p>Calculating the entropy: Entropy = -<span class="math inline">\(\sum_{i=1}^{n} prob[i]*log(prob[i])\)</span></p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>sym <span class="op">=</span> <span class="bu">list</span>(d.keys())</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>entropy <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(sym)):</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  entropy <span class="op">+=</span> <span class="op">-</span><span class="dv">1</span><span class="op">*</span>prob[sym[i]]<span class="op">*</span>np.log2(prob[sym[i]])</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Entropy of Huffman coding is:"</span>,entropy)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Entropy of Huffman coding is: 4.102837721940702</code></pre>
+</div>
+</div>
+</section>
+<section id="cross-entropy" class="level2">
+<h2 class="anchored" data-anchor-id="cross-entropy">Cross Entropy</h2>
+<p>Calculating the cross entropy: Cross entropy = -<span class="math inline">\(\sum_{i=1}^{n} prob[i]*log(q[i])\)</span> q[i] = <span class="math inline">\(\frac{1}{log(2^{length of Huffman code})}\)</span></p>
 
 
 </section>
