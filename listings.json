@@ -3,14 +3,14 @@
     "listing": "/index.html",
     "items": [
       "/posts/jpeghuffman/jpeghuffman.html",
+      "/posts/huffmancoding/index.html",
+      "/posts/secondorder/index.html",
       "/posts/mlalgos/forward_propogation_neural_networks_from_scratch.html",
       "/posts/mlalgos/gradient_descent_from_scratch.html",
       "/posts/mlalgos/gradient_descent_multivariable_vectorized_from_scratch.html",
       "/posts/mlalgos/Handwritten_digit_prediction_Neural_Network.html",
       "/posts/mlalgos/logistic_regression_from_scratch.html",
       "/posts/mlalgos/multi_class_neural_network.html",
-      "/posts/huffmancoding/index.html",
-      "/posts/secondorder/index.html",
       "/posts/linalg/index.html"
     ]
   }

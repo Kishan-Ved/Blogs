@@ -6,8 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-09-11">
-<meta name="description" content="Huffman coding for data compression to optimize memory and transmittion time.">
+<meta name="dcterms.date" content="2023-09-12">
+<meta name="description" content="Huffman coding of DCT Matrix used in JPEG image compression.">
 
 <title>Blogs - Huffman Coding in JPEG</title>
 <style>
@@ -145,13 +145,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <h1 class="title">Huffman Coding in JPEG</h1>
                   <div>
         <div class="description">
-          Huffman coding for data compression to optimize memory and transmittion time.
+          Huffman coding of DCT Matrix used in JPEG image compression.
         </div>
       </div>
                           <div class="quarto-categories">
                 <div class="quarto-category">Information Theory</div>
                 <div class="quarto-category">Coding</div>
-                <div class="quarto-category">Data Compression</div>
+                <div class="quarto-category">JPEG</div>
+                <div class="quarto-category">Huffman coding</div>
+                <div class="quarto-category">Image compression</div>
               </div>
                   </div>
   </div>
@@ -169,7 +171,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">September 11, 2023</p>
+        <p class="date">September 12, 2023</p>
       </div>
     </div>
     
@@ -187,7 +189,56 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div class="cell" data-outputid="ca569eb1-1b35-4a52-c4d4-8601f8cc8b59" data-execution_count="4">
+<section id="huffman-coding-in-jpeg" class="level1">
+<h1><strong>Huffman coding in JPEG</strong></h1>
+<p>JPEG (Joint Photographic Experts Group) compression is a widely used method for compressing digital images. It utilizes a lossy compression technique to reduce the file size of images while attempting to preserve visual quality. Here are the general steps involved in JPEG compression:</p>
+<ol type="1">
+<li><strong>Color Space Conversion</strong>:
+<ul>
+<li>The first step is often to convert the image from its original color space (usually RGB for most images) to the YCbCr color space. This separates the image into luminance (Y) and chrominance (Cb and Cr) components.</li>
+</ul></li>
+<li><strong>Subsampling</strong>:
+<ul>
+<li>In the YCbCr color space, chrominance information (Cb and Cr) can be subsampled. This means that some color information is reduced, which can result in significant compression without much visible loss in image quality. Common subsampling ratios are 4:4:4 (no subsampling), 4:2:2, and 4:2:0.</li>
+</ul></li>
+<li><strong>Block Splitting</strong>:
+<ul>
+<li>The image is divided into small blocks (typically 8x8 pixels). These blocks are then processed independently.</li>
+</ul></li>
+<li><strong>Discrete Cosine Transform (DCT)</strong>:
+<ul>
+<li>Each 8x8 block is transformed from the spatial domain to the frequency domain using DCT. This process converts the image data from its original pixel values to a set of coefficients that represent the different frequencies present in the block.</li>
+</ul></li>
+<li><strong>Quantization</strong>:
+<ul>
+<li>After the DCT, quantization is applied to the DCT coefficients. Quantization involves dividing each coefficient by a quantization matrix. This step is where significant loss of data and quality occurs. Higher quantization values result in more compression but also more loss of quality.</li>
+</ul></li>
+<li><strong>Entropy Encoding</strong>:
+<ul>
+<li>The quantized DCT coefficients are then entropy-encoded. Huffman coding is often used to represent the coefficients more efficiently. Run-length encoding can also be applied to exploit the run of zeros in the quantized coefficients.</li>
+</ul></li>
+<li><strong>Header Information</strong>:
+<ul>
+<li>Various header information, such as the quantization tables, subsampling information, and image dimensions, is stored along with the compressed data to aid in decoding.</li>
+</ul></li>
+<li><strong>Write to File</strong>:
+<ul>
+<li>The compressed data, along with the header information, is written to a file. The file is typically given a “.jpg” extension.</li>
+</ul></li>
+<li><strong>Optional Post-processing</strong>:
+<ul>
+<li>Some post-processing may be applied to the compressed image, such as smoothing or color correction, to improve the visual quality to some extent.</li>
+</ul></li>
+<li><strong>Decompression (Reconstruction)</strong>:
+<ul>
+<li>To view the compressed image, it must be decompressed. The decompression process reverses the steps outlined above, starting with entropy decoding, dequantization, inverse DCT, and color space conversion.</li>
+</ul></li>
+</ol>
+<section id="huffman-coding-post-dct" class="level2">
+<h2 class="anchored" data-anchor-id="huffman-coding-post-dct"><strong>Huffman coding post DCT</strong></h2>
+<p>Huffman coding comes into play once we have the matrix of DCT coefficients.</p>
+<p>In this blog, we will use the huffman library. (Refer to my blog on Huffman coding for generating huffman codes from scratch.)</p>
+<div class="cell" data-outputid="deb0f16f-5c86-4932-eccd-ba092f56bae3" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> huffman</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -202,118 +253,244 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>],</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    [<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>]</span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>], dtype<span class="op">=</span>np.int32)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Initial matrix"</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dct_coefficients)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Function to calculate (r, s) pairs for DCT coefficients</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_rs_pairs(dct_coefficients):</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    rs_pairs <span class="op">=</span> []</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    run_length <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row <span class="kw">in</span> dct_coefficients:</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> element <span class="kw">in</span> row:</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> element <span class="op">==</span> <span class="dv">0</span>:</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>                run_length <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>                bits_needed <span class="op">=</span> <span class="bu">len</span>(<span class="bu">bin</span>(<span class="bu">abs</span>(element))) <span class="op">-</span> <span class="dv">2</span>  <span class="co"># Calculate the number of bits needed to represent c</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>                rs_pairs.append(((run_length, bits_needed), element))</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>                run_length <span class="op">=</span> <span class="dv">0</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rs_pairs</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate (r, s) pairs</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>rs_pairs <span class="op">=</span> calculate_rs_pairs(dct_coefficients)</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"(r,s) pairs and c values:"</span>)</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(rs_pairs)):</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(rs_pairs[i])</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the frequency of (r, s) pairs</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>frequency_rs <span class="op">=</span> {}</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> {} <span class="co"># maps (r,s) pair to a unique symbol (for passing in huffman library)</span></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>d2 <span class="op">=</span> {} <span class="co"># Inverse of d</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>alph <span class="op">=</span> <span class="st">"abcdefghijklmnopqrstuvwxyz"</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>pos<span class="op">=</span><span class="dv">0</span></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (r, s), _ <span class="kw">in</span> rs_pairs:</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (r,s) <span class="kw">in</span> <span class="bu">list</span>(d.keys()):</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">continue</span></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span>:</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    d[(r,s)] <span class="op">=</span> alph[pos]</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    d2[alph[pos]] <span class="op">=</span> (r,s)</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    pos<span class="op">+=</span><span class="dv">1</span></span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (r,s),_ <span class="kw">in</span> rs_pairs:</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> d[(r, s)] <span class="kw">in</span> frequency_rs:</span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>        frequency_rs[d[(r, s)]] <span class="op">+=</span> <span class="dv">1</span></span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>        frequency_rs[d[(r, s)]] <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="co"># Build Huffman codes for (r, s) pairs</span></span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>huffman_rs <span class="op">=</span> huffman.codebook([(x,frequency_rs[x]) <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">list</span>(frequency_rs.keys())])</span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dictionary to map (r, s) pairs to their Huffman codes</span></span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>rs_to_huffman <span class="op">=</span> {pair: huffman_rs[pair] <span class="cf">for</span> pair <span class="kw">in</span> frequency_rs.keys()}</span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a><span class="co"># Encode ((r, s), c) triples</span></span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>encoded_data <span class="op">=</span> <span class="st">""</span></span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (r, s), c <span class="kw">in</span> rs_pairs:</span>
-<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    <span class="co"># encoded_data += rs_to_huffman[d[(r, s)]]   # Encode (r, s)</span></span>
-<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    encoded_data <span class="op">+=</span> rs_to_huffman[d[(r, s)]] <span class="op">+</span> <span class="bu">format</span>(c, <span class="ss">f'0</span><span class="sc">{</span>s<span class="sc">}</span><span class="ss">b'</span>)  <span class="co"># Encode (r, s) and c</span></span>
-<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a><span class="co"># Decode the encoded data to recover the ((r, s), c) triples</span></span>
-<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a>decoded_data <span class="op">=</span> []</span>
-<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>current_bits <span class="op">=</span> <span class="st">""</span></span>
-<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>i<span class="op">=</span><span class="dv">0</span></span>
-<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> i<span class="op">&lt;</span><span class="bu">len</span>(encoded_data):</span>
-<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>    <span class="co"># print(i)</span></span>
-<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>    current_bits <span class="op">+=</span> encoded_data[i]</span>
-<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>    i<span class="op">+=</span><span class="dv">1</span></span>
-<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ch, huffman_code <span class="kw">in</span> rs_to_huffman.items():</span>
-<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> current_bits <span class="op">==</span> huffman_code:</span>
-<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a>            current_bits <span class="op">=</span> <span class="st">""</span></span>
-<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a>            c_bits <span class="op">=</span> <span class="st">""</span></span>
-<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>            r,s <span class="op">=</span> d2[ch]</span>
-<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>            <span class="co"># print(s)</span></span>
-<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(s):</span>
-<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a>                c_bits <span class="op">+=</span> encoded_data[i<span class="op">+</span>j]</span>
-<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>            decoded_data.append((ch,<span class="bu">int</span>(c_bits, <span class="dv">2</span>)))</span>
-<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>            <span class="co"># print(ch,int(c_bits,2))</span></span>
-<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>            i<span class="op">+=</span>s</span>
-<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>            <span class="co"># print(i)</span></span>
-<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>            c_bits <span class="op">=</span> <span class="st">""</span></span>
-<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a>        <span class="co"># i+=1</span></span>
-<span id="cb1-98"><a href="#cb1-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-99"><a href="#cb1-99" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the encoded and decoded data</span></span>
-<span id="cb1-100"><a href="#cb1-100" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Encoded Data:"</span>)</span>
-<span id="cb1-101"><a href="#cb1-101" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(encoded_data)</span>
-<span id="cb1-102"><a href="#cb1-102" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-103"><a href="#cb1-103" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Decoded Data:"</span>)</span>
-<span id="cb1-104"><a href="#cb1-104" aria-hidden="true" tabindex="-1"></a>dl <span class="op">=</span> []</span>
-<span id="cb1-105"><a href="#cb1-105" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch,c <span class="kw">in</span> decoded_data:</span>
-<span id="cb1-106"><a href="#cb1-106" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(d2[ch],c)</span>
-<span id="cb1-107"><a href="#cb1-107" aria-hidden="true" tabindex="-1"></a>  dl.append((d2[ch],c))</span>
-<span id="cb1-108"><a href="#cb1-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-109"><a href="#cb1-109" aria-hidden="true" tabindex="-1"></a>newl <span class="op">=</span> []</span>
-<span id="cb1-110"><a href="#cb1-110" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ele <span class="kw">in</span> dl:</span>
-<span id="cb1-111"><a href="#cb1-111" aria-hidden="true" tabindex="-1"></a>  r,s <span class="op">=</span> ele[<span class="dv">0</span>]</span>
-<span id="cb1-112"><a href="#cb1-112" aria-hidden="true" tabindex="-1"></a>  c <span class="op">=</span> ele[<span class="dv">1</span>]</span>
-<span id="cb1-113"><a href="#cb1-113" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(r):</span>
-<span id="cb1-114"><a href="#cb1-114" aria-hidden="true" tabindex="-1"></a>    newl.append(<span class="dv">0</span>)</span>
-<span id="cb1-115"><a href="#cb1-115" aria-hidden="true" tabindex="-1"></a>  newl.append(c)</span>
-<span id="cb1-116"><a href="#cb1-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-117"><a href="#cb1-117" aria-hidden="true" tabindex="-1"></a>ll <span class="op">=</span> <span class="bu">len</span>(newl)</span>
-<span id="cb1-118"><a href="#cb1-118" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(ll<span class="op">+</span><span class="dv">1</span>,<span class="dv">64</span><span class="op">+</span><span class="dv">1</span>):</span>
-<span id="cb1-119"><a href="#cb1-119" aria-hidden="true" tabindex="-1"></a>  newl.append(<span class="dv">0</span>)</span>
-<span id="cb1-120"><a href="#cb1-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-121"><a href="#cb1-121" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb1-122"><a href="#cb1-122" aria-hidden="true" tabindex="-1"></a>newl <span class="op">=</span> np.array(newl)</span>
-<span id="cb1-123"><a href="#cb1-123" aria-hidden="true" tabindex="-1"></a>newl <span class="op">=</span> np.reshape(newl,(<span class="dv">8</span>,<span class="dv">8</span>))</span>
-<span id="cb1-124"><a href="#cb1-124" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
-<span id="cb1-125"><a href="#cb1-125" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"The decoded matrix is:"</span>)</span>
-<span id="cb1-126"><a href="#cb1-126" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(newl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Initial DCT matrix"</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dct_coefficients)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Initial DCT matrix
+[[20 30 10 25 30  0  0  0]
+ [ 0  5  0  0  0  0  5  0]
+ [ 0  0 15  0  0  0 20  0]
+ [ 0  0  0  0  1  0  0  0]
+ [ 0  0  0  0  0  0  0  0]
+ [ 0  0  0  0  0  0  0  0]
+ [ 0  0  0  0  0  0  0  0]
+ [ 0  0  0  0  0  0  0  0]]</code></pre>
+</div>
+</div>
+</section>
+<section id="encoding-in-the-form-rs-c" class="level2">
+<h2 class="anchored" data-anchor-id="encoding-in-the-form-rs-c"><strong>Encoding in the form: ((r,s), c)</strong></h2>
+<p>Iterate through the matrix row by row.</p>
+<p>c is a non-zero element in the dct_coefficients matrix.</p>
+<p>Re calculate the number of zero elements before every non zero element (r) and the number of bits needed to represent the non-zero element (s).</p>
+<p>Thus,</p>
+<p><em>c = Non-zero element.</em></p>
+<p><em>r = Number of zeros before the non-zero element.</em></p>
+<p><em>s = Number of bits used to represent the non-zero element.</em></p>
+<p>In practice, we don’t iterate row by row but along diagonals in a zig-zag pattern, but the logic of generating ((r,s),c) remains the same.</p>
+<div class="cell" data-outputid="87aa0008-6c6c-4be9-a331-607367fa9d9f" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> calculate_rs_pairs(dct_coefficients):</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    rs_pairs <span class="op">=</span> []</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    run_length <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> row <span class="kw">in</span> dct_coefficients:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> element <span class="kw">in</span> row:</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> element <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                run_length <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span>:</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                bits_needed <span class="op">=</span> <span class="bu">len</span>(<span class="bu">bin</span>(<span class="bu">abs</span>(element))) <span class="op">-</span> <span class="dv">2</span>  <span class="co"># Calculate the number of bits needed to represent c</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                rs_pairs.append(((run_length, bits_needed), element))</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                run_length <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rs_pairs</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate (r, s) pairs</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>rs_pairs <span class="op">=</span> calculate_rs_pairs(dct_coefficients)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"(r,s) pairs and c values:"</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(rs_pairs)):</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(rs_pairs[i])</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(r,s) pairs and c values:
+((0, 5), 20)
+((0, 5), 30)
+((0, 4), 10)
+((0, 5), 25)
+((0, 5), 30)
+((4, 3), 5)
+((4, 3), 5)
+((3, 4), 15)
+((3, 5), 20)
+((5, 1), 1)
+</code></pre>
+</div>
+</div>
+</section>
+<section id="huffman-coding-of-rs-pairs" class="level2">
+<h2 class="anchored" data-anchor-id="huffman-coding-of-rs-pairs"><strong>Huffman coding of (r,s) pairs</strong></h2>
+<p>These (r,s) pairs repeat several times, thus, we use Huffman coding to represent them optimally.</p>
+<section id="assigning-a-unique-symbol-to-all-distinct-rs-pairs" class="level3">
+<h3 class="anchored" data-anchor-id="assigning-a-unique-symbol-to-all-distinct-rs-pairs"><strong>Assigning a unique symbol to all distinct (r,s) pairs</strong></h3>
+<p>This is needed to pass the pair (in the form of the symbol) to the Huffman library for Huffman coding.</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> {} <span class="co"># maps (r,s) pair to a unique symbol (for passing in huffman library)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>d2 <span class="op">=</span> {} <span class="co"># Inverse of d</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>alph <span class="op">=</span> <span class="st">"abcdefghijklmnopqrstuvwxyz"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>pos<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (r, s), _ <span class="kw">in</span> rs_pairs:</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (r,s) <span class="kw">in</span> <span class="bu">list</span>(d.keys()):</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">continue</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span>:</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    d[(r,s)] <span class="op">=</span> alph[pos]</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    d2[alph[pos]] <span class="op">=</span> (r,s)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    pos<span class="op">+=</span><span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="calculating-the-frequency-of-these-rs-pairs" class="level3">
+<h3 class="anchored" data-anchor-id="calculating-the-frequency-of-these-rs-pairs"><strong>Calculating the frequency of these (r,s) pairs</strong></h3>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>frequency_rs <span class="op">=</span> {}</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (r,s),_ <span class="kw">in</span> rs_pairs:</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> d[(r, s)] <span class="kw">in</span> frequency_rs:</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>        frequency_rs[d[(r, s)]] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        frequency_rs[d[(r, s)]] <span class="op">=</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="performing-huffman-coding" class="level3">
+<h3 class="anchored" data-anchor-id="performing-huffman-coding"><strong>Performing Huffman coding</strong></h3>
+<p>The code of a DCT matrix consists of a string of codes of every non-zero element (c), which has 2 parts:</p>
+<ol type="1">
+<li><p>Huffman code of the (r,s) pair associated with c and</p></li>
+<li><p>s bits (as s is the number of bits used to represent c in binary form)</p></li>
+</ol>
+<p>So, we know the non-zero digit c and the number of zeros before it in the dct_coefficients matrix.</p>
+<div class="cell" data-outputid="b3633fed-2a93-460c-fc81-a16a6e7b83c3" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (r,s),_ <span class="kw">in</span> rs_pairs:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> d[(r, s)] <span class="kw">in</span> frequency_rs:</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>        frequency_rs[d[(r, s)]] <span class="op">+=</span> <span class="dv">1</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        frequency_rs[d[(r, s)]] <span class="op">=</span> <span class="dv">1</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Build Huffman codes for (r, s) pairs</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>huffman_rs <span class="op">=</span> huffman.codebook([(x,frequency_rs[x]) <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">list</span>(frequency_rs.keys())])</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dictionary to map (r, s) pairs to their Huffman codes</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>rs_to_huffman <span class="op">=</span> {pair: huffman_rs[pair] <span class="cf">for</span> pair <span class="kw">in</span> frequency_rs.keys()}</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>encoded_data <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (r, s), c <span class="kw">in</span> rs_pairs:</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    encoded_data <span class="op">+=</span> rs_to_huffman[d[(r, s)]] <span class="op">+</span> <span class="bu">format</span>(c, <span class="ss">f'0</span><span class="sc">{</span>s<span class="sc">}</span><span class="ss">b'</span>)  <span class="co"># Encode (r, s) and c</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"(("</span>,r,<span class="st">","</span>,s,<span class="st">")"</span>,c,<span class="st">")   Huffman code for (r,s) pair: "</span>,rs_to_huffman[d[(r, s)]],<span class="st">" Binary representation of c: "</span>, <span class="bu">format</span>(c, <span class="ss">f'0</span><span class="sc">{</span>s<span class="sc">}</span><span class="ss">b'</span>))</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Encoded Data:"</span>)</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(encoded_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(( 0 , 5 ) 20 )   Huffman code for (r,s) pair:  11  Binary representation of c:  10100
+(( 0 , 5 ) 30 )   Huffman code for (r,s) pair:  11  Binary representation of c:  11110
+(( 0 , 4 ) 10 )   Huffman code for (r,s) pair:  100  Binary representation of c:  1010
+(( 0 , 5 ) 25 )   Huffman code for (r,s) pair:  11  Binary representation of c:  11001
+(( 0 , 5 ) 30 )   Huffman code for (r,s) pair:  11  Binary representation of c:  11110
+(( 4 , 3 ) 5 )   Huffman code for (r,s) pair:  00  Binary representation of c:  101
+(( 4 , 3 ) 5 )   Huffman code for (r,s) pair:  00  Binary representation of c:  101
+(( 3 , 4 ) 15 )   Huffman code for (r,s) pair:  101  Binary representation of c:  1111
+(( 3 , 5 ) 20 )   Huffman code for (r,s) pair:  011  Binary representation of c:  10100
+(( 5 , 1 ) 1 )   Huffman code for (r,s) pair:  010  Binary representation of c:  1
+
+Encoded Data:
+1110100111111010010101111001111111000101001011011111011101000101</code></pre>
+</div>
+</div>
+<p>Isn’t that amazing! Using such a small number of bits, we are able to transmit the entire DCT matrix.</p>
+</section>
+</section>
+<section id="decoding---finding-the-dct-matrix" class="level2">
+<h2 class="anchored" data-anchor-id="decoding---finding-the-dct-matrix"><strong>Decoding - Finding the DCT Matrix</strong></h2>
+<div class="cell" data-outputid="1240d9bd-30e6-481c-d708-a8aa0655d236" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>decoded_data <span class="op">=</span> []</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>current_bits <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>i<span class="op">=</span><span class="dv">0</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> i<span class="op">&lt;</span><span class="bu">len</span>(encoded_data):</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># print(i)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    current_bits <span class="op">+=</span> encoded_data[i]</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    i<span class="op">+=</span><span class="dv">1</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ch, huffman_code <span class="kw">in</span> rs_to_huffman.items():</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> current_bits <span class="op">==</span> huffman_code:</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>            current_bits <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>            c_bits <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>            r,s <span class="op">=</span> d2[ch]</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>            <span class="co"># print(s)</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(s):</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>                c_bits <span class="op">+=</span> encoded_data[i<span class="op">+</span>j]</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>            decoded_data.append((ch,<span class="bu">int</span>(c_bits, <span class="dv">2</span>)))</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>            <span class="co"># print(ch,int(c_bits,2))</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>            i<span class="op">+=</span>s</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>            <span class="co"># print(i)</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>            c_bits <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Decoded Data:"</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>dl <span class="op">=</span> []</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ch,c <span class="kw">in</span> decoded_data:</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(d2[ch],c)</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  dl.append((d2[ch],c))</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>newl <span class="op">=</span> []</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ele <span class="kw">in</span> dl:</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  r,s <span class="op">=</span> ele[<span class="dv">0</span>]</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  c <span class="op">=</span> ele[<span class="dv">1</span>]</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(r):</span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    newl.append(<span class="dv">0</span>)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  newl.append(c)</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>ll <span class="op">=</span> <span class="bu">len</span>(newl)</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(ll<span class="op">+</span><span class="dv">1</span>,<span class="dv">64</span><span class="op">+</span><span class="dv">1</span>):</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>  newl.append(<span class="dv">0</span>)</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>newl <span class="op">=</span> np.array(newl)</span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>newl <span class="op">=</span> np.reshape(newl,(<span class="dv">8</span>,<span class="dv">8</span>))</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"The decoded matrix is:"</span>)</span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(newl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Decoded Data:
+(0, 5) 20
+(0, 5) 30
+(0, 4) 10
+(0, 5) 25
+(0, 5) 30
+(4, 3) 5
+(4, 3) 5
+(3, 4) 15
+(3, 5) 20
+(5, 1) 1
+
+The decoded matrix is:
+[[20 30 10 25 30  0  0  0]
+ [ 0  5  0  0  0  0  5  0]
+ [ 0  0 15  0  0  0 20  0]
+ [ 0  0  0  0  1  0  0  0]
+ [ 0  0  0  0  0  0  0  0]
+ [ 0  0  0  0  0  0  0  0]
+ [ 0  0  0  0  0  0  0  0]
+ [ 0  0  0  0  0  0  0  0]]</code></pre>
+</div>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary"><strong>Summary</strong></h2>
+<div class="cell" data-outputid="ca563022-67db-4d7d-b2cf-e10ec1a0971a" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Initial matrix"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(dct_coefficients)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"(r,s) pairs and c values:"</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="bu">len</span>(rs_pairs)):</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(rs_pairs[i])</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Encoded Data:"</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(encoded_data)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Decoded Data:"</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"The decoded matrix is:"</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(newl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Initial matrix
 [[20 30 10 25 30  0  0  0]
@@ -341,16 +518,6 @@ Encoded Data:
 1110100111111010010101111001111111000101001011011111011101000101
 
 Decoded Data:
-(0, 5) 20
-(0, 5) 30
-(0, 4) 10
-(0, 5) 25
-(0, 5) 30
-(4, 3) 5
-(4, 3) 5
-(3, 4) 15
-(3, 5) 20
-(5, 1) 1
 
 The decoded matrix is:
 [[20 30 10 25 30  0  0  0]
@@ -365,6 +532,8 @@ The decoded matrix is:
 </div>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
